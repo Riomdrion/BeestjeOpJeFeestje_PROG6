@@ -1,0 +1,21 @@
+@model BeestjeOpJeFeestje_PROG6.ViewModel.UserViewModel
+
+@{
+    ViewBag.Title = "Login";
+    Layout = null;
+}
+
+<div class="container mt-4">
+    <h2>Login</h2>
+    <form method="post">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" class="form-control" id="email" name="Email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
