@@ -25,7 +25,7 @@
 
         <div class="form-group">
             <label class="control-label">Price</label>
-            <input required name="Price" value="@Model." class="form-control" step="0.01" />
+            <input required name="Price" value="@Model.Price" class="form-control" type="number" step="0.01" />
             <input type="hidden" name="Id" value="@Model.Id" />
         </div>
 
@@ -35,7 +35,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary m-2">@((Model.Name == null) ? "Create Animal" : "Save Changes")</button>
-        <a href="@Url.Action("Index", "Animal")" class="btn btn-secondary m-2">Cancel</a>
+        <a href="@Url.Action("Read", "Animal")" class="btn btn-secondary m-2">Cancel</a>
     </form>
 
     @if (Model.Name != null)

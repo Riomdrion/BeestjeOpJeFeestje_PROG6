@@ -21,11 +21,11 @@ namespace BeestjeOpJeFeestje_PROG6.data.SeedData
                 // Voeg eerst Animals en Users toe
                 var animals = new[]
                 {
-                    new Animal { Name = "Aap", Type = "Jungle", Price = 50.00M, ImageUrl = "https://example.com/aap.jpg" },
-                    new Animal { Name = "Koe", Type = "Boerderij", Price = 75.00M, ImageUrl = "https://example.com/koe.jpg" },
-                    new Animal { Name = "Pinguïn", Type = "Sneeuw", Price = 100.00M, ImageUrl = "https://example.com/pinguin.jpg" },
-                    new Animal { Name = "Kameel", Type = "Woestijn", Price = 85.00M, ImageUrl = "https://example.com/kameel.jpg" },
-                    new Animal { Name = "Unicorn", Type = "VIP", Price = 500.00M, ImageUrl = "https://example.com/unicorn.jpg" }
+                    new Animal { Name = "Aap", Type = "Jungle", Price = 50.00, ImageUrl = "https://example.com/aap.jpg" },
+                    new Animal { Name = "Koe", Type = "Boerderij", Price = 75.00, ImageUrl = "https://example.com/koe.jpg" },
+                    new Animal { Name = "Pinguïn", Type = "Sneeuw", Price = 100.00, ImageUrl = "https://example.com/pinguin.jpg" },
+                    new Animal { Name = "Kameel", Type = "Woestijn", Price = 85.00, ImageUrl = "https://example.com/kameel.jpg" },
+                    new Animal { Name = "Unicorn", Type = "VIP", Price = 500.00, ImageUrl = "https://example.com/unicorn.jpg" }
                 };
                 context.Animals.AddRange(animals);
                 context.SaveChanges();
