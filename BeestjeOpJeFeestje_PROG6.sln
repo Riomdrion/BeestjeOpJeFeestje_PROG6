@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeestjeOpJeFeestje_PROG6", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeestjeOpJeFeestje_PROG6.data", "BeestjeOpJeFeestje_PROG6.data\BeestjeOpJeFeestje_PROG6.data.csproj", "{FDABB805-F6BF-4136-AA3F-7AE339971CF8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeestjeOpJeFeestje_PROG6.unitTest", "BeestjeOpJeFeestje_PROG6.unitTest\BeestjeOpJeFeestje_PROG6.unitTest.csproj", "{21A23239-ACB8-4475-9534-F2E5BA0684C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{FDABB805-F6BF-4136-AA3F-7AE339971CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDABB805-F6BF-4136-AA3F-7AE339971CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDABB805-F6BF-4136-AA3F-7AE339971CF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21A23239-ACB8-4475-9534-F2E5BA0684C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21A23239-ACB8-4475-9534-F2E5BA0684C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21A23239-ACB8-4475-9534-F2E5BA0684C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21A23239-ACB8-4475-9534-F2E5BA0684C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
