@@ -1,6 +1,13 @@
-﻿namespace BeestjeOpJeFeestje_PROG6.Controllers;
+﻿using BeestjeOpJeFeestje_PROG6.ViewModel;
+using Microsoft.AspNetCore.Mvc;
 
-public class UserController
+namespace BeestjeOpJeFeestje_PROG6.Controllers;
+
+public class UserController : Controller
 {
     
+    public IActionResult Index()
+        {
+            return View("Login", new UserViewModel());
+        }
 }
