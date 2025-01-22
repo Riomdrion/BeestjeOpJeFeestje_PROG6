@@ -19,7 +19,8 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Age = table.Column<int>(type: "int", nullable: false)
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,7 +33,6 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -45,15 +45,13 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                 name: "Bookings",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EventDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    AnimalId = table.Column<int>(type: "int", nullable: false)
+                    AnimalId = table.Column<int>(type: "int", nullable: false),
+                    EventDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bookings", x => x.Id);
+                    table.PrimaryKey("PK_Bookings", x => new { x.UserId, x.AnimalId });
                     table.ForeignKey(
                         name: "FK_Bookings_Animals_AnimalId",
                         column: x => x.AnimalId,
@@ -72,11 +70,6 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                 name: "IX_Bookings_AnimalId",
                 table: "Bookings",
                 column: "AnimalId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bookings_UserId",
-                table: "Bookings",
-                column: "UserId");
         }
 
         /// <inheritdoc />

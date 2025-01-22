@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BeestjeOpJeFeestje_PROG6.data.DBcontext;
-
-public class ApplicationDbContext : DbContext
+namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
+{
+    public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -24,14 +24,14 @@ public class ApplicationDbContext : DbContext
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Type).IsRequired().HasMaxLength(50);
-                entity.Property(e => e.Age).IsRequired();
+                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,2)");
+                entity.Property(e => e.ImageUrl).HasMaxLength(250);
             });
 
             // Configure User entity
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
             });
@@ -39,7 +39,7 @@ public class ApplicationDbContext : DbContext
             // Configure Booking entity
             modelBuilder.Entity<Booking>(entity =>
             {
-                entity.HasKey(e => e.Id);
+                entity.HasKey(e => new { e.UserId, e.AnimalId });
                 entity.Property(e => e.EventDate).IsRequired();
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.Bookings)
@@ -57,14 +57,14 @@ public class ApplicationDbContext : DbContext
         public int Id { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
-        public int Age { get; set; }
+        public decimal Price { get; set; }
+        public string ImageUrl { get; set; }
         public ICollection<Booking> Bookings { get; set; }
     }
 
     public class User
     {
         public int Id { get; set; }
-        public string Username { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public ICollection<Booking> Bookings { get; set; }
@@ -72,10 +72,10 @@ public class ApplicationDbContext : DbContext
 
     public class Booking
     {
-        public int Id { get; set; }
-        public DateTime EventDate { get; set; }
         public int UserId { get; set; }
         public User User { get; set; }
         public int AnimalId { get; set; }
         public Animal Animal { get; set; }
+        public DateTime EventDate { get; set; }
     }
+}
