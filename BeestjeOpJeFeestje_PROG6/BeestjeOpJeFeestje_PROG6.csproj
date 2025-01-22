@@ -20,4 +20,8 @@
       </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\BeestjeOpJeFeestje_PROG6.data\BeestjeOpJeFeestje_PROG6.data.csproj" />
+    </ItemGroup>
+
 </Project>
