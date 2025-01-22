@@ -1,0 +1,87 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa]ppPackages/
+[Oo]ut/
+
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# Windows specific files
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# DotNet Publish
+publish/
+*.pubxml
+*.pubxml.user
+
+# Logs
+*.log
+
+# npm
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Compiled DLLs and PDBs
+*.dll
+*.pdb
+
+# Backup files
+*.bak
+*.swp
+
+# Test results
+*.trx
+*.coverage
+.coveragexml
+*.logtestresult
+
+# Coverage reports
+coverage/
+*.coverage
+
+# Generated files
+*.g.cs
+*.g.i.cs
+*.csproj.user
+*.designer.cs
+bin/
+obj/
+
+# IDE-specific directories
+*.idea/
+*.vs/
