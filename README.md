@@ -1,4 +1,4 @@
-# Eindopdracht PROG6 - 2023/2024
+# Eindopdracht PROG6 - 2024/2025
 
 ## Overzicht
 
