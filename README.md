@@ -1,7 +1,3 @@
-Hier is een voorstel voor een README-bestand voor het project:
-
----
-
 # Eindopdracht PROG6 - 2023/2024
 
 ## Overzicht
