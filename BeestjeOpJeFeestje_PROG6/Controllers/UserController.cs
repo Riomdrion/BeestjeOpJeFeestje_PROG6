@@ -3,6 +3,7 @@ using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using BeestjeOpJeFeestje_PROG6.Services;
 
 namespace BeestjeOpJeFeestje_PROG6.Controllers;
 
@@ -46,4 +47,34 @@ public class UserController : Controller
 
         return View(model);
     }
+
+    [HttpPost]
+    public IActionResult HashPassword(string email, string plainPassword)
+    {
+        if (!string.IsNullOrEmpty(plainPassword) && !string.IsNullOrEmpty(email))
+        {
+            var user = _db.Users.FirstOrDefault(u => u.Email == email);
+        
+            if (user != null)
+            {
+                user.PasswordHash = PasswordService.HashPassword(plainPassword);
+                _db.SaveChanges(); // Sla de wijzigingen op in de database
+
+                TempData["Message"] = $"Wachtwoord gehasht en opgeslagen voor {email}!";
+            }
+            else
+            {
+                TempData["Message"] = "Gebruiker niet gevonden!";
+            }
+        }
+        else
+        {
+            TempData["Message"] = "Ongeldige invoer!";
+        }
+
+        return View("Login", new UserViewModel()); // Terug naar de loginpagina met een melding
+    }
+
+
+
 }
