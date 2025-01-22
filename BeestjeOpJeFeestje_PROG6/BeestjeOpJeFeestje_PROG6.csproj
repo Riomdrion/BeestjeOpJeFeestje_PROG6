@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BeestjeOpJeFeestje_PROG6.data\BeestjeOpJeFeestje_PROG6.data.csproj" />
+      <ProjectReference Include="..\BeestjeOpJeFeestje_PROG6.unitTest\BeestjeOpJeFeestje_PROG6.unitTest.csproj" />
     </ItemGroup>
 
     <ItemGroup>
