@@ -1,0 +1,47 @@
+﻿@using BeestjeOpJeFeestje_PROG6.ViewModel
+@{
+    if (Model.Name == null)
+    {
+        ViewBag.Title = "Create Animal";
+    }
+    else
+    {
+        ViewBag.Title = $"Edit Animal: {Model.Name}";
+    }
+}
+<div class="container mt-4">
+    <h1>@ViewBag.Title</h1>
+
+    <form asp-controller="Animal" asp-action="Upsert" method="post">
+        <div class="form-group">
+            <label class="control-label">Name</label>
+            <input required name="Name" value="@Model.Name" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Type</label>
+            <input required name="Type" value="@Model.Type" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Price</label>
+            <input required name="Price" value="@Model." class="form-control" step="0.01" />
+            <input type="hidden" name="Id" value="@Model.Id" />
+        </div>
+
+        <div class="form-group">
+            <label class="control-label">Image URL</label>
+            <input required name="ImageUrl" value="@Model.ImageUrl" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary m-2">@((Model.Name == null) ? "Create Animal" : "Save Changes")</button>
+        <a href="@Url.Action("Index", "Animal")" class="btn btn-secondary m-2">Cancel</a>
+    </form>
+
+    @if (Model.Name != null)
+    {
+        <form id="deleteForm" asp-controller="Animal" asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this animal?');">
+            <button type="submit" class="btn btn-danger m-2">Delete Animal</button>
+        </form>
+    }
+</div>

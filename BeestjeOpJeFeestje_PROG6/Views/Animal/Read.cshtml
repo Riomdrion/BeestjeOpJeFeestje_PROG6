@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "Animal Overview";
+}
+<div class="container mt-4">
+    @if (TempData["Message"] != null)
+    {
+        var message = TempData["Message"].ToString();
+        var alertClass = message.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0
+            ? "alert-danger"
+            : "alert-success";
+        <div class="alert @alertClass" id="error-message">
+            @TempData["Message"]
+        </div>
+    }
+    
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Animal Overview</h1>
+        <a asp-action="Upsert" asp-controller="Animal" class="btn btn-secondary bg-gradient">Create Animal</a>
+    </div>
+    
+    <!-- Animal table -->
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Animal Name</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Image</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var animalVM in Model)
+        {
+            <tr onclick="window.location.href='@Url.Action("Upsert", "Animal", new { id = animalVM.Id })'" style="cursor:pointer;">
+                <td>@animalVM.Name</td>
+                <td>@animalVM.Type</td>
+                <td>@animalVM.Price.ToString("C")</td>
+                <td>
+                    <img src="@animalVM.ImageUrl" alt="@animalVM.Name" style="max-height: 50px;" />
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
