@@ -25,20 +25,24 @@ public class AnimalController(ApplicationDbContext db) : Controller
    [HttpGet]
    public IActionResult Upsert(int id)
    {
+      AnimalViewModel animalViewModel;
       var animal = db.Animals.FirstOrDefault(a => a.Id == id);
       if (animal == null)
       {
-         return NotFound();
+         animalViewModel = new AnimalViewModel();
       }
-
-      var animalViewModel = new AnimalViewModel
+      else
       {
-         Id = animal.Id,
-         Name = animal.Name,
-         Type = animal.Type,
-         Price = animal.Price,
-         ImageUrl = animal.ImageUrl
-      };
+
+         animalViewModel = new AnimalViewModel
+         {
+            Id = animal.Id,
+            Name = animal.Name,
+            Type = animal.Type,
+            Price = animal.Price,
+            ImageUrl = animal.ImageUrl
+         };
+      }
       return View(animalViewModel);
    }
    
@@ -47,20 +51,38 @@ public class AnimalController(ApplicationDbContext db) : Controller
    {
       if (ModelState.IsValid)
       {
-         var animal = new Animal
+         var animal = db.Animals.FirstOrDefault(a => a.Id == animalViewModel.Id);
+         if (animal == null)
          {
-            Name = animalViewModel.Name,
-            Type = animalViewModel.Type,
-            Price = animalViewModel.Price,
-            ImageUrl = animalViewModel.ImageUrl
-         };
-         
-         db.Animals.Add(animal);
+            animal = new Animal();
+            db.Animals.Add(animal);
+         }
+
+         animal.Name = animalViewModel.Name;
+         animal.Type = animalViewModel.Type;
+         animal.Price = animalViewModel.Price;
+         animal.ImageUrl = animalViewModel.ImageUrl;
+
          db.SaveChanges();
-         
          return RedirectToAction("Read");
       }
-      
+
       return View(animalViewModel);
+   }
+   
+   [HttpGet]
+   [HttpPost]
+   [ValidateAntiForgeryToken]
+   public async Task<IActionResult> Delete(int id)
+   {
+      var animal = await db.Animals.FindAsync(id);
+      if (animal == null)
+      {
+         return NotFound();
+      }
+      TempData["Message"] = $"{animal.Name} is succesvol verwijderd.";
+      db.Animals.Remove(animal);
+      await db.SaveChangesAsync();
+      return RedirectToAction("Read");
    }
 }
