@@ -1,0 +1,10 @@
+﻿using BeestjeOpJeFeestje_PROG6.data.DBcontext;
+using BeestjeOpJeFeestje_PROG6.data.Models;
+
+public class User
+{
+    public int Id { get; set; }
+    public string Email { get; set; }
+    public string PasswordHash { get; set; }
+    public ICollection<Booking> Bookings { get; set; }
+}

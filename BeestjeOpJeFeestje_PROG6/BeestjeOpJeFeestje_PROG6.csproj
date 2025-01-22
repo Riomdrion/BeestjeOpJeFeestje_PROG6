@@ -24,4 +24,9 @@
       <ProjectReference Include="..\BeestjeOpJeFeestje_PROG6.data\BeestjeOpJeFeestje_PROG6.data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml" />
+    </ItemGroup>
+
 </Project>

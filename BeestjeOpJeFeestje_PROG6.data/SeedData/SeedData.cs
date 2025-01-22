@@ -1,4 +1,5 @@
 ﻿using BeestjeOpJeFeestje_PROG6.data.DBcontext;
+using BeestjeOpJeFeestje_PROG6.data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 

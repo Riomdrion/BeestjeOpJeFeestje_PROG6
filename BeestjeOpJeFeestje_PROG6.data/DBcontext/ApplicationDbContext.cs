@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BeestjeOpJeFeestje_PROG6.data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
 {
@@ -49,33 +50,5 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                     .HasForeignKey(e => e.AnimalId);
             });
         }
-    }
-
-    // Entity definitions
-    public class Animal
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public decimal Price { get; set; }
-        public string ImageUrl { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
-    }
-
-    public class User
-    {
-        public int Id { get; set; }
-        public string Email { get; set; }
-        public string PasswordHash { get; set; }
-        public ICollection<Booking> Bookings { get; set; }
-    }
-
-    public class Booking
-    {
-        public int UserId { get; set; }
-        public User User { get; set; }
-        public int AnimalId { get; set; }
-        public Animal Animal { get; set; }
-        public DateTime EventDate { get; set; }
     }
 }
