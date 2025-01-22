@@ -1,4 +1,4 @@
-namespace BeestjeOpJeFeestje_PROG6.Models;
+namespace BeestjeOpJeFeestje_PROG6.ViewModel;
 
 public class ErrorViewModel
 {
