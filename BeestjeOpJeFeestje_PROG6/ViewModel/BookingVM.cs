@@ -6,8 +6,7 @@ public class BookingVM
 {
     public int Id { get; set; }
     public DateTime Date { get; set; }
-    public int AnimalId { get; set; }
     public Animal Animal { get; set; }
-    public int UserId { get; set; }
     public User User { get; set; }
+    public bool IsConfirmed { get; set; }
 }

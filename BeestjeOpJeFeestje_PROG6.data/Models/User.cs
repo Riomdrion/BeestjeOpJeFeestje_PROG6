@@ -8,4 +8,5 @@ public class User
     public string PasswordHash { get; set; }
     public string? Card { get; set; }
     public ICollection<Booking> Bookings { get; set; }
+    public int Role { get; set; }
 }
