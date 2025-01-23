@@ -16,14 +16,11 @@
             <input type="email" asp-for="Email" class="form-control" required />
         </div>
 
-        <!-- Wachtwoord (alleen bij nieuwe user) -->
-        @if (Model.Id == 0)
-        {
-            <div class="mb-3">
-                <label asp-for="PasswordHash" class="form-label">Generated Password</label>
-                <input type="text" asp-for="PasswordHash" class="form-control" readonly />
-            </div>
-        }
+        <!-- Wachtwoord (zichtbaar, maar niet bewerkbaar) -->
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label">Password</label>
+            <input type="text" asp-for="Password" class="form-control" readonly />
+        </div>
 
         <!-- Card -->
         <div class="mb-3">
@@ -44,4 +41,11 @@
         <button type="submit" class="btn btn-primary">Save</button>
         <a asp-action="Read" asp-controller="User" class="btn btn-secondary">Cancel</a>
     </form>
+    
+    @if (Model.Email != null)
+    {
+        <form id="deleteForm" asp-controller="User" asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this animal?');">
+            <button type="submit" class="btn btn-danger m-2">Delete Animal</button>
+        </form>
+    }
 </div>

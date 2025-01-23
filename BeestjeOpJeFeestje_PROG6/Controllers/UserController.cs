@@ -3,7 +3,7 @@ using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using BeestjeOpJeFeestje_PROG6.Services;
+using BeestjeOpJeFeestje_PROG6;
 
 namespace BeestjeOpJeFeestje_PROG6.Controllers;
 
@@ -32,21 +32,33 @@ public class UserController : Controller
             var user = _db.Users.FirstOrDefault(u => u.Email == model.Email);
             if (user != null)
             {
-                // Vergelijk het ingevoerde wachtwoord met de gehashte versie in de database
-                var result = _passwordHasher.VerifyHashedPassword(user.Email, user.PasswordHash, model.Password);
+                // Encrypt the entered password to match stored encrypted value
+                string encryptedInputPassword = PasswordService.EncryptPassword(model.Password);
 
-                if (result == PasswordVerificationResult.Success)
+                // Debugging: Check what is being compared
+                Console.WriteLine($"Stored Encrypted Password: {user.PasswordHash}");
+                Console.WriteLine($"Encrypted Entered Password: {encryptedInputPassword}");
+
+                // Compare encrypted input with stored encrypted password
+                if (encryptedInputPassword == user.PasswordHash)
                 {
                     TempData["Message"] = "Login succesvol!";
-                    return RedirectToAction("Read", "Animal"); // 🔹 Redirect naar Read pagina
+                    return RedirectToAction("Read", "Animal"); // Redirect after successful login
+                }
+                else
+                {
+                    TempData["Message"] = "Fout: Wachtwoord klopt niet!";
                 }
             }
-
-            TempData["Message"] = "Fout: Ongeldige inloggegevens!";
+            else
+            {
+                TempData["Message"] = "Fout: Gebruiker niet gevonden!";
+            }
         }
 
         return View(model);
     }
+
 
     [HttpGet]
     public IActionResult Read()
@@ -62,103 +74,102 @@ public class UserController : Controller
         return View("Read", userViewModels);
     }
     
-    [HttpPost]
-    public IActionResult HashPassword(string email, string plainPassword)
-    {
-        if (!string.IsNullOrEmpty(plainPassword) && !string.IsNullOrEmpty(email))
-        {
-            var user = _db.Users.FirstOrDefault(u => u.Email == email);
-        
-            if (user != null)
-            {
-                user.PasswordHash = PasswordService.HashPassword(plainPassword);
-                _db.SaveChanges(); // Sla de wijzigingen op in de database
+    // [HttpPost]
+    // public IActionResult HashPassword(string email, string plainPassword)
+    // {
+    //     if (!string.IsNullOrEmpty(plainPassword) && !string.IsNullOrEmpty(email))
+    //     {
+    //         var user = _db.Users.FirstOrDefault(u => u.Email == email);
+    //     
+    //         if (user != null)
+    //         {
+    //             user.PasswordHash = PasswordService.HashPassword(plainPassword);
+    //             _db.SaveChanges(); // Sla de wijzigingen op in de database
+    //
+    //             TempData["Message"] = $"Wachtwoord gehasht en opgeslagen voor {email}!";
+    //         }
+    //         else
+    //         {
+    //             TempData["Message"] = "Gebruiker niet gevonden!";
+    //         }
+    //     }
+    //     else
+    //     {
+    //         TempData["Message"] = "Ongeldige invoer!";
+    //     }
+    //
+    //     return View("Login", new LoginViewModel()); // Terug naar de loginpagina met een melding
+    // }
 
-                TempData["Message"] = $"Wachtwoord gehasht en opgeslagen voor {email}!";
-            }
-            else
+    [HttpGet]
+    public IActionResult Upsert(int? id)
+    {
+        UserViewModel userViewModel;
+
+        if (id == null || id == 0)
+        {
+            // Nieuwe gebruiker met een gegenereerd wachtwoord
+            userViewModel = new UserViewModel
             {
-                TempData["Message"] = "Gebruiker niet gevonden!";
-            }
+                Password = GenerateRandomPassword(),
+                Role = "0"
+            };
         }
         else
         {
-            TempData["Message"] = "Ongeldige invoer!";
+            var user = _db.Users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            userViewModel = new UserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Role = user.Role.ToString(),
+                Card = user.Card,
+                Password = PasswordService.DecryptPassword(user.PasswordHash) // Wachtwoord decoderen
+            };
         }
 
-        return View("Login", new LoginViewModel()); // Terug naar de loginpagina met een melding
+        return View(userViewModel);
     }
 
-    [HttpGet]
-        public IActionResult Upsert(int? id)
+    [HttpPost]
+    public IActionResult Upsert(UserViewModel model)
+    {
+        if (ModelState.IsValid)
         {
-            UserViewModel userViewModel;
+            var user = _db.Users.FirstOrDefault(u => u.Id == model.Id);
 
-            if (id == null || id == 0)
+            if (user == null)
             {
-                // Nieuwe gebruiker aanmaken met een gegenereerd wachtwoord
-                userViewModel = new UserViewModel
+                user = new User
                 {
-                    PasswordHash = GenerateRandomPassword(),
-                    Role = "0" // Standaardrol: Gebruiker
+                    Email = model.Email,
+                    Role = int.Parse(model.Role),
+                    Card = model.Card,
+                    PasswordHash = PasswordService.EncryptPassword(model.Password) // Encrypt before saving
                 };
+                _db.Users.Add(user);
             }
             else
             {
-                var user = _db.Users.FirstOrDefault(u => u.Id == id);
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                userViewModel = new UserViewModel
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    Role = user.Role.ToString(),
-                    Card = user.Card
-                };
+                // Update existing user
+                user.Email = model.Email;
+                user.Role = int.Parse(model.Role);
+                user.Card = model.Card;
+                user.PasswordHash = PasswordService.EncryptPassword(model.Password);
             }
 
-            return View(userViewModel);
+            _db.SaveChanges();
+            return RedirectToAction("Read");
         }
 
-        [HttpPost]
-        public IActionResult Upsert(UserViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = _db.Users.FirstOrDefault(u => u.Id == model.Id);
-
-                if (user == null)
-                {
-                    // Nieuwe user toevoegen met gehasht wachtwoord
-                    user = new User
-                    {
-                        Email = model.Email,
-                        Role = int.Parse(model.Role), // Zet string om naar int
-                        Card = model.Card,
-                        PasswordHash = PasswordService.HashPassword(model.PasswordHash) // Wachtwoord hashen
-                    };
-                    _db.Users.Add(user);
-                    TempData["Message"] = $"User {model.Email} created successfully! Password: {model.PasswordHash}";
-                }
-                else
-                {
-                    // Bestaande user updaten
-                    user.Email = model.Email;
-                    user.Role = int.Parse(model.Role);
-                    user.Card = model.Card;
-                    TempData["Message"] = $"User {model.Email} updated successfully!";
-                }
-
-                _db.SaveChanges();
-                return RedirectToAction("Read");
-            }
-
-            return View(model);
-        }
-
+        return View(model);
+    }
+    
         private string GenerateRandomPassword()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
