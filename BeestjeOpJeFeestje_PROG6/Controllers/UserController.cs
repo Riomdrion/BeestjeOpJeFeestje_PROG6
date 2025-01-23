@@ -63,16 +63,20 @@ public class UserController : Controller
     [HttpGet]
     public IActionResult Read()
     {
-        var userViewModels = _db.Users.Select(u => new UserViewModel
-        {
-            Id = u.Id,
-            Email = u.Email,
-            Card = u.Card,
-            Role = u.Role == 1 ? "Admin" : "User"  // Zet de rol om naar een leesbare vorm
-        }).ToList();
+        var userViewModels = _db.Users
+            .Where(u => u.Id > 13)  // Filter out users with Id <= 13
+            .Select(u => new UserViewModel
+            {
+                Id = u.Id,
+                Email = u.Email,
+                Card = u.Card,
+                Role = u.Role == 1 ? "Admin" : "User"  // Convert role to readable format
+            })
+            .ToList();
 
         return View("Read", userViewModels);
     }
+
     
     // [HttpPost]
     // public IActionResult HashPassword(string email, string plainPassword)
