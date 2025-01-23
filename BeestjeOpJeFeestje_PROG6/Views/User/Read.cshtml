@@ -1,0 +1,44 @@
+@model IEnumerable<BeestjeOpJeFeestje_PROG6.ViewModel.UserViewModel>
+
+@{
+    ViewBag.Title = "User Overview";
+}
+
+<div class="container mt-4">
+    @if (TempData["Message"] != null)
+    {
+        var message = TempData["Message"].ToString();
+        var alertClass = message.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0
+            ? "alert-danger"
+            : "alert-success";
+        <div class="alert @alertClass" id="error-message">
+            @TempData["Message"]
+        </div>
+    }
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>User Overview</h1>
+        <a asp-action="Upsert" asp-controller="User" class="btn btn-secondary bg-gradient">Create User</a>
+    </div>
+
+    <!-- User Table -->
+    <table class="table table-hover mt-3">
+        <thead class="table-dark">
+        <tr>
+            <th>Id</th>
+            <th>Email</th>
+            <th>Card</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var userVM in Model)
+        {
+            <tr onclick="window.location.href='@Url.Action("Upsert", "User", new { id = userVM.Id })'" style="cursor:pointer;">
+                <td>@userVM.Id</td>
+                <td>@userVM.Email</td>
+                <td>@userVM.Card</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
