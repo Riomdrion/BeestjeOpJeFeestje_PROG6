@@ -36,6 +36,7 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.Role).IsRequired();
+                entity.Property(e => e.adress).IsRequired();
                 entity.Property(e => e.Card)
                     .HasMaxLength(10)
                     .IsRequired(false);
@@ -47,7 +48,7 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.EventDate).IsRequired();
                 entity.Property(e => e.IsConfirmed).IsRequired();
-                entity.Property(e => e.baseprice).IsRequired().HasColumnType("decimal(18,2)");
+                entity.Property(e => e.discount).IsRequired();
                 entity.Property(e => e.price).IsRequired().HasColumnType("decimal(18,2)");
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.Bookings)

@@ -2,13 +2,19 @@
 
 namespace BeestjeOpJeFeestje_PROG6.Services
 {
-    public static class PriceCalculator
+    public static class PriceAndDiscountCalculator
     {
         private static readonly Random Random = new Random();
 
-        public static double CalculatePrice(Booking booking)
+        public static double CalculatePrice(Booking booking, int discount)
+        { 
+            double finalPrice = booking.price * (double)(1 - discount / 100);
+            return finalPrice;
+        }
+
+        public static int CalculateDiscount(Booking booking)
         {
-            decimal discount = 0;
+            int discount = 0;
 
             // 1. 10% korting bij 3 dieren van hetzelfde type
             var groupedAnimals = booking.Animals.GroupBy(a => a.Type);
@@ -52,10 +58,7 @@ namespace BeestjeOpJeFeestje_PROG6.Services
             // 6. Maximaal 60% korting
             discount = Math.Min(discount, 60);
 
-            // Toepassing van korting op de basisprijs
-            double finalPrice = booking.baseprice * (double)(1 - discount / 100);
-
-            return finalPrice;
+            return discount;
         }
     }
 }
