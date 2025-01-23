@@ -1,0 +1,47 @@
+@model BeestjeOpJeFeestje_PROG6.ViewModel.UserViewModel
+
+@{
+    ViewBag.Title = Model.Id == 0 ? "Create User" : "Edit User";
+}
+
+<div class="container mt-4">
+    <h1>@ViewBag.Title</h1>
+
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input type="email" asp-for="Email" class="form-control" required />
+        </div>
+
+        <!-- Wachtwoord (alleen bij nieuwe user) -->
+        @if (Model.Id == 0)
+        {
+            <div class="mb-3">
+                <label asp-for="PasswordHash" class="form-label">Generated Password</label>
+                <input type="text" asp-for="PasswordHash" class="form-control" readonly />
+            </div>
+        }
+
+        <!-- Card -->
+        <div class="mb-3">
+            <label asp-for="Card" class="form-label">Card</label>
+            <input type="text" asp-for="Card" class="form-control" />
+        </div>
+
+        <!-- Rol (dropdown) -->
+        <div class="mb-3">
+            <label asp-for="Role" class="form-label">Role</label>
+            <select asp-for="Role" class="form-select">
+                <option value="0">Gebruiker</option>
+                <option value="1">Admin</option>
+            </select>
+        </div>
+
+        <!-- Opslaan knop -->
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Read" asp-controller="User" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

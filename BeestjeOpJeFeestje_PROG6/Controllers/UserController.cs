@@ -23,19 +23,6 @@ public class UserController : Controller
     {
         return View("Login", new UserViewModel());
     }
-    
-    [HttpGet]
-    public IActionResult Read()
-    {
-        var userViewModels = _db.Users.Select(u => new UserViewModel
-        {
-            Id = u.Id,
-            Email = u.Email,
-            Card = u.Card
-        }).ToList();
-
-        return View("Read", userViewModels);
-    }
 
     [HttpPost]
     public IActionResult Login(UserViewModel model)

@@ -27,6 +27,7 @@
         <tr>
             <th>Id</th>
             <th>Email</th>
+            <th>Role</th>
             <th>Card</th>
         </tr>
         </thead>
@@ -36,6 +37,7 @@
             <tr onclick="window.location.href='@Url.Action("Upsert", "User", new { id = userVM.Id })'" style="cursor:pointer;">
                 <td>@userVM.Id</td>
                 <td>@userVM.Email</td>
+                <td>@userVM.Role</td>
                 <td>@userVM.Card</td>
             </tr>
         }
