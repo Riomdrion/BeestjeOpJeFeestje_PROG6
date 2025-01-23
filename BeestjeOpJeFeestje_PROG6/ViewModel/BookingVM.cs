@@ -9,4 +9,6 @@ public class BookingVM
     public Animal Animal { get; set; }
     public User User { get; set; }
     public bool IsConfirmed { get; set; }
+    public double Price { get; set; }
+    public double BasePrice { get; set; }
 }
