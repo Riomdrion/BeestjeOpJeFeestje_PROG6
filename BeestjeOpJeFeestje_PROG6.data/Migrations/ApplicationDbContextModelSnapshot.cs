@@ -55,8 +55,11 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
 
             modelBuilder.Entity("BeestjeOpJeFeestje_PROG6.data.Models.Booking", b =>
                 {
-                    b.Property<int>("UserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AnimalId")
                         .HasColumnType("int");
@@ -64,9 +67,17 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("UserId", "AnimalId");
+                    b.Property<bool>("IsConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("AnimalId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
                 });
@@ -78,6 +89,10 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Card")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -98,13 +113,13 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                     b.HasOne("BeestjeOpJeFeestje_PROG6.data.Models.Animal", "Animal")
                         .WithMany("Bookings")
                         .HasForeignKey("AnimalId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Animal");

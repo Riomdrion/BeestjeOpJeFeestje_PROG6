@@ -35,19 +35,26 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.Card)
+                    .HasMaxLength(10)
+                    .IsRequired(false);
             });
 
             // Configure Booking entity
             modelBuilder.Entity<Booking>(entity =>
             {
-                entity.HasKey(e => new { e.UserId, e.AnimalId });
+                entity.HasKey(e => e.Id);
                 entity.Property(e => e.EventDate).IsRequired();
+                entity.Property(e => e.IsConfirmed).IsRequired();
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.Bookings)
-                    .HasForeignKey(e => e.UserId);
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 entity.HasOne(e => e.Animal)
                     .WithMany(a => a.Bookings)
-                    .HasForeignKey(e => e.AnimalId);
+                    .HasForeignKey(e => e.AnimalId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
