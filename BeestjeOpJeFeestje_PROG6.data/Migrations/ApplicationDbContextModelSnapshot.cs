@@ -73,13 +73,32 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("discount")
+                        .HasColumnType("int");
 
-                    b.HasIndex("AnimalId");
+                    b.Property<decimal>("price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("BookingAnimal", b =>
+                {
+                    b.Property<int>("AnimalId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AnimalId", "BookingId");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingAnimal");
                 });
 
             modelBuilder.Entity("User", b =>
@@ -106,6 +125,10 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<string>("adress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
@@ -113,26 +136,28 @@ namespace BeestjeOpJeFeestje_PROG6.data.Migrations
 
             modelBuilder.Entity("BeestjeOpJeFeestje_PROG6.data.Models.Booking", b =>
                 {
-                    b.HasOne("BeestjeOpJeFeestje_PROG6.data.Models.Animal", "Animal")
-                        .WithMany("Bookings")
-                        .HasForeignKey("AnimalId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Animal");
-
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BeestjeOpJeFeestje_PROG6.data.Models.Animal", b =>
+            modelBuilder.Entity("BookingAnimal", b =>
                 {
-                    b.Navigation("Bookings");
+                    b.HasOne("BeestjeOpJeFeestje_PROG6.data.Models.Animal", null)
+                        .WithMany()
+                        .HasForeignKey("AnimalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BeestjeOpJeFeestje_PROG6.data.Models.Booking", null)
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("User", b =>
