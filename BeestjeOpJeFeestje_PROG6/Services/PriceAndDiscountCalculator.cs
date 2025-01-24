@@ -8,7 +8,7 @@ namespace BeestjeOpJeFeestje_PROG6.Services
 
         public static double CalculatePrice(Booking booking, int discount)
         { 
-            double finalPrice = booking.price * (double)(1 - discount / 100);
+            double finalPrice = booking.Price * (double)(1 - discount / 100);
             return finalPrice;
         }
 

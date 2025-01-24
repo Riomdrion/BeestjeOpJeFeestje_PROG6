@@ -1,0 +1,17 @@
+﻿@model List<string>
+
+<div class="container mt-5">
+    <h2>Stap 2: Kies beschikbare dieren</h2>
+    <form method="post" asp-action="SaveAnimals">
+        <div id="animalList" class="form-group">
+            @foreach (var animal in Model)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="SelectedAnimals" value="@animal" id="@animal">
+                    <label class="form-check-label" for="@animal">@animal</label>
+                </div>
+            }
+        </div>
+        <button type="submit" class="btn btn-primary">Next</button>
+    </form>
+</div>

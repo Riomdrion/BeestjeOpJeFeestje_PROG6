@@ -11,6 +11,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Voeg controllers met views toe
 builder.Services.AddControllersWithViews();
 
+// Voeg sessieondersteuning toe
+builder.Services.AddDistributedMemoryCache(); // Voor sessieopslag in geheugen
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Stel sessietijd in
+    options.Cookie.HttpOnly = true; // Beveiliging: alleen toegankelijk via HTTP
+    options.Cookie.IsEssential = true; // Essentieel voor GDPR
+});
+
 var app = builder.Build();
 
 // Seed de database met testdata
@@ -29,6 +38,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// TODO fix this
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -37,11 +47,14 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // Voor statische bestanden zoals CSS en JS
 app.UseRouting();
+
+app.UseSession(); // Activeer sessiemiddleware
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Animal}/{action=Read}/{id?}");
+    pattern: "{controller=Booking}/{action=StepOne}/{id?}");
 
 app.Run();

@@ -48,8 +48,8 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.EventDate).IsRequired();
                 entity.Property(e => e.IsConfirmed).IsRequired();
-                entity.Property(e => e.discount).IsRequired();
-                entity.Property(e => e.price).IsRequired().HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Discount).IsRequired();
+                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,2)");
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.Bookings)
                     .HasForeignKey(e => e.UserId)
