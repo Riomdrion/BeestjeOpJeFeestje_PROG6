@@ -3,7 +3,9 @@ using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Security.Claims;
 using BeestjeOpJeFeestje_PROG6;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace BeestjeOpJeFeestje_PROG6.Controllers;
@@ -25,8 +27,7 @@ public class UserController : Controller
         return View(new LoginViewModel());
     }
 
-    [HttpPost]
-    public IActionResult Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (ModelState.IsValid)
         {
@@ -43,6 +44,22 @@ public class UserController : Controller
                 // Compare encrypted input with stored encrypted password
                 if (encryptedInputPassword == user.PasswordHash)
                 {
+                    // Maak claims aan en voeg de UserId toe
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.Email), // Gebruik Email als Name claim
+                        new Claim("UserId", user.Id.ToString()) // Voeg de UserId toe als custom claim
+                    };
+
+                    // Maak een ClaimsIdentity
+                    var claimsIdentity = new ClaimsIdentity(claims, "Login");
+
+                    // Maak een ClaimsPrincipal
+                    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                    // Log de gebruiker in
+                    await HttpContext.SignInAsync(claimsPrincipal);
+
                     TempData["Message"] = "Login succesvol!";
                     return RedirectToAction("Read", "Animal"); // Redirect after successful login
                 }
@@ -59,6 +76,13 @@ public class UserController : Controller
 
         return View(model);
     }
+
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync();
+        return RedirectToAction("Login", "Account");
+    }
+    
 
     [HttpPost]
     public IActionResult HashPassword(string email, string plainPassword)

@@ -21,6 +21,14 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
+// Voeg authenticatie toe
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.LoginPath = "/User/Login"; // Pad naar de loginpagina
+        options.LogoutPath = "/User/Logout"; // Pad naar de uitlogpagina
+    });
+
 var app = builder.Build();
 
 // Seed de database met testdata
@@ -39,8 +47,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// TODO fix this
-// Configure the HTTP request pipeline
+// Configure de HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -52,10 +59,11 @@ app.UseStaticFiles(); // Voor statische bestanden zoals CSS en JS
 app.UseRouting();
 
 app.UseSession(); // Activeer sessiemiddleware
-app.UseAuthorization();
+app.UseAuthentication(); // Activeer authenticatie middleware
+app.UseAuthorization();  // Activeer autorisatie middleware
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=User}/{action=Index}/{id?}");
+    pattern: "{controller=User}/{action=Login}/{id?}");
 
 app.Run();
