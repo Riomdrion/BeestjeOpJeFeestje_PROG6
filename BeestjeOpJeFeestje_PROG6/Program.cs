@@ -55,6 +55,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Booking}/{action=StepOne}/{id?}");
+    pattern: "{controller=User}/{action=Index}/{id?}");
 
 app.Run();

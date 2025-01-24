@@ -10,5 +10,6 @@ namespace BeestjeOpJeFeestje_PROG6.ViewModel
         public string Password { get; set; }
         public string? Card { get; set; }
         public string Role { get; set; }
+        public int PhoneNumber { get; set; }
     }
 }

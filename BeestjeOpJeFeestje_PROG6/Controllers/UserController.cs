@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using BeestjeOpJeFeestje_PROG6;
+using Microsoft.EntityFrameworkCore;
 
 namespace BeestjeOpJeFeestje_PROG6.Controllers;
 
@@ -59,51 +60,50 @@ public class UserController : Controller
         return View(model);
     }
 
+    [HttpPost]
+    public IActionResult HashPassword(string email, string plainPassword)
+    {
+        var user = _db.Users.FirstOrDefault(u => u.Email == email);
+
+        if (user != null)
+        {
+            // Versleutel wachtwoord en update in de database
+            user.PasswordHash = PasswordService.EncryptPassword(plainPassword);
+            _db.SaveChanges();
+
+            ViewBag.HashedPassword = user.PasswordHash;
+        }
+        else
+        {
+            ViewBag.HashedPassword = "Gebruiker niet gevonden!";
+        }
+
+        return View("Login");
+    }
+
 
     [HttpGet]
     public IActionResult Read()
     {
         var userViewModels = _db.Users
-            .Where(u => u.Id > 13)  // Filter out users with Id <= 13
             .Select(u => new UserViewModel
             {
                 Id = u.Id,
                 Email = u.Email,
                 Card = u.Card,
-                Role = u.Role == 1 ? "Admin" : "User"  // Convert role to readable format
+                Role = u.Role == 1 ? "Admin" : "User",  // Convert role to readable format
+                PhoneNumber = u.PhoneNumber,
             })
             .ToList();
 
+        // Behoud de melding voor de volgende request
+        if (TempData["Message"] != null)
+        {
+            ViewBag.Message = TempData["Message"];
+        }
+        
         return View("Read", userViewModels);
     }
-
-    
-    // [HttpPost]
-    // public IActionResult HashPassword(string email, string plainPassword)
-    // {
-    //     if (!string.IsNullOrEmpty(plainPassword) && !string.IsNullOrEmpty(email))
-    //     {
-    //         var user = _db.Users.FirstOrDefault(u => u.Email == email);
-    //     
-    //         if (user != null)
-    //         {
-    //             user.PasswordHash = PasswordService.HashPassword(plainPassword);
-    //             _db.SaveChanges(); // Sla de wijzigingen op in de database
-    //
-    //             TempData["Message"] = $"Wachtwoord gehasht en opgeslagen voor {email}!";
-    //         }
-    //         else
-    //         {
-    //             TempData["Message"] = "Gebruiker niet gevonden!";
-    //         }
-    //     }
-    //     else
-    //     {
-    //         TempData["Message"] = "Ongeldige invoer!";
-    //     }
-    //
-    //     return View("Login", new LoginViewModel()); // Terug naar de loginpagina met een melding
-    // }
 
     [HttpGet]
     public IActionResult Upsert(int? id)
@@ -133,7 +133,9 @@ public class UserController : Controller
                 Email = user.Email,
                 Role = user.Role.ToString(),
                 Card = user.Card,
+                PhoneNumber = user.PhoneNumber,
                 Password = PasswordService.DecryptPassword(user.PasswordHash) // Wachtwoord decoderen
+                
             };
         }
 
@@ -154,6 +156,7 @@ public class UserController : Controller
                     Email = model.Email,
                     Role = int.Parse(model.Role),
                     Card = model.Card,
+                    PhoneNumber = model.PhoneNumber,
                     PasswordHash = PasswordService.EncryptPassword(model.Password) // Encrypt before saving
                 };
                 _db.Users.Add(user);
@@ -164,6 +167,7 @@ public class UserController : Controller
                 user.Email = model.Email;
                 user.Role = int.Parse(model.Role);
                 user.Card = model.Card;
+                user.PhoneNumber = model.PhoneNumber;
                 user.PasswordHash = PasswordService.EncryptPassword(model.Password);
             }
 
@@ -180,5 +184,39 @@ public class UserController : Controller
             var random = new Random();
             return new string(Enumerable.Repeat(chars, 8)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _db.Users.FindAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                _db.Users.Remove(user);
+                await _db.SaveChangesAsync();
+                TempData["Message"] = $"{user.Email} is succesvol verwijderd.";
+            }
+            catch (DbUpdateException ex)
+            {
+                // Controleer of de fout te maken heeft met een Foreign Key Constraint
+                if (ex.InnerException?.Message.Contains("REFERENCE constraint") == true)
+                {
+                    TempData["ErrorMessage"] = $"Je kunt {user.Email} niet verwijderen omdat deze gebruiker een boeking heeft.";
+                    return RedirectToAction("Upsert", new { id = user.Id });  // Terug naar de Upsert-pagina (Edit User)
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Er is een fout opgetreden bij het verwijderen van de gebruiker.";
+                    return RedirectToAction("Upsert", new { id = user.Id });  // Terug naar de Upsert-pagina (Edit User)
+                }
+            }
+
+            return RedirectToAction("Read");
         }
     }

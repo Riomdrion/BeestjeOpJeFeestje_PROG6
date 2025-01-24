@@ -11,5 +11,4 @@ public class User
     public int PhoneNumber { get; set; }
     public ICollection<Booking> Bookings { get; set; }
     public int Role { get; set; }
-    public String adress { get; set; }
 }
