@@ -124,4 +124,56 @@ public class BookingController(ApplicationDbContext db) : Controller
         return RedirectToAction("Details", new { id = booking.Id });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Bookings()
+    {
+        // Controleer of de gebruiker is ingelogd
+        if (!User.Identity.IsAuthenticated)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        // Haal de ingelogde gebruiker-ID op
+        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
+
+        // Controleer of de gebruiker een admin is
+        var user = await db.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        List<Booking>? bookings = null;
+
+        if (user.Role == 1)
+        {
+            // Als admin, haal alle boekingen op
+            bookings = await db.Bookings
+                .Include(b => b.User)
+                .Include(b => b.Animals)
+                .ToListAsync();
+        }
+        else if (user.Role == 0)
+        {
+            // Alleen eigen boekingen ophalen
+            bookings = await db.Bookings
+                .Where(b => b.UserId == userId)
+                .Include(b => b.Animals)
+                .ToListAsync();
+        }
+
+        // Maak een ViewModel voor de boekingen
+        var bookingVMs = bookings.Select(b => new BookingVM
+        {
+            Id = b.Id,
+            EventDate = b.EventDate,
+            Animals = b.Animals,
+            Price = b.Price,
+            Discount = b.Discount,
+            User = b.User
+        }).ToList();
+        return View(bookingVMs);
+    }
+
+
 }

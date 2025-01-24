@@ -1,2 +1,44 @@
-﻿
+﻿@model List<BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM>
 
+<div class="container mt-5">
+    <h2>Mijn Boekingen</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Datum</th>
+            <th>Dieren</th>
+            <th>Prijs</th>
+            <th>Korting</th>
+            @if (User.IsInRole("Admin"))
+            {
+                <th>Gebruiker</th>
+            }
+            <th>Bevestigd</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.Id</td>
+                <td>@booking.EventDate.ToString("dd-MM-yyyy")</td>
+                <td>
+                    <ul>
+                        @foreach (var animal in booking.Animals)
+                        {
+                            <li>@animal.Name</li>
+                        }
+                    </ul>
+                </td>
+                <td>€@booking.Price.ToString("0.00")</td>
+                <td>@booking.Discount%</td>
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>@booking.User.PhoneNumber</td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
