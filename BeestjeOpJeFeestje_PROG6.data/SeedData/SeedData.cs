@@ -32,11 +32,11 @@ namespace BeestjeOpJeFeestje_PROG6.data.SeedData
 
                 var users = new[]
                 {
-                    new User { Email = "Admin@example.com", PasswordHash = "hashed_password1", PhoneNumber = 0643289141, Role = 1},
+                    new User { Email = "Admin@example.com", PasswordHash = "hashed_password1", PhoneNumber = 0643289141, Role = 1, Card = "No card"},
                     new User { Email = "Silver@example.com", PasswordHash = "hashed_password2", PhoneNumber = 0642259141, Role = 0, Card = "Silver"},
                     new User { Email = "Gold@example.com", PasswordHash = "hashed_password3", PhoneNumber = 0645289541, Role = 0, Card = "Gold"},
                     new User { Email = "Platinum4@example.com", PasswordHash = "hashed_password4" , PhoneNumber = 0642269541, Role = 0, Card = "Platinum" },
-                    new User { Email = "User@example.com", PasswordHash = "hashed_password5" , PhoneNumber = 0643189341, Role = 0}
+                    new User { Email = "User@example.com", PasswordHash = "hashed_password5" , PhoneNumber = 0643189341, Role = 0, Card = "No card"}
                 };
                 context.Users.AddRange(users);
                 context.SaveChanges();
