@@ -36,6 +36,7 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.Role).IsRequired();
+                entity.Property(e => e.adress).IsRequired();
                 entity.Property(e => e.Card)
                     .HasMaxLength(10)
                     .IsRequired(false);
@@ -47,15 +48,19 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.EventDate).IsRequired();
                 entity.Property(e => e.IsConfirmed).IsRequired();
+                entity.Property(e => e.Discount).IsRequired();
+                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,2)");
                 entity.HasOne(e => e.User)
                     .WithMany(u => u.Bookings)
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(e => e.Animal)
+                entity.HasMany(e => e.Animals)
                     .WithMany(a => a.Bookings)
-                    .HasForeignKey(e => e.AnimalId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .UsingEntity<Dictionary<string, object>>(
+                        "BookingAnimal",
+                        j => j.HasOne<Animal>().WithMany().HasForeignKey("AnimalId"),
+                        j => j.HasOne<Booking>().WithMany().HasForeignKey("BookingId"));
             });
         }
     }

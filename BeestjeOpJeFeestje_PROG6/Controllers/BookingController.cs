@@ -1,56 +1,80 @@
-﻿using BeestjeOpJeFeestje_PROG6.data.DBcontext;
+﻿using System.Runtime.InteropServices.JavaScript;
+using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using BeestjeOpJeFeestje_PROG6.data.Models;
 using BeestjeOpJeFeestje_PROG6.ViewModel;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BeestjeOpJeFeestje_PROG6.Controllers;
 
-public class BookingController : Controller
+public class BookingController(ApplicationDbContext db) : Controller
 {
-    private readonly ApplicationDbContext _db;
-
-    public BookingController(ApplicationDbContext db)
-    {
-        _db = db;
-    }
-
     [HttpGet]
-    public IActionResult BookingWizard()
+    public IActionResult StepOne()
     {
-        var viewModel = new BookingWizardVM
+        return View();
+    }
+    
+    [HttpPost]
+    public IActionResult SaveDate(DateOnly EventDate)
+    {
+        HttpContext.Session.SetString("EventDate", EventDate.ToString("yyyy-MM-dd"));
+        return Redirect("StepTwo");
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> StepTwo()
+    {
+        var eventDate = HttpContext.Session.GetString("EventDate");
+        if (string.IsNullOrEmpty(eventDate))
         {
-            AvailableAnimals = _db.Animals.ToList(),
-            Booking = new BookingVM()
-        };
+            return RedirectToAction("StepOne");
+        }
 
-        return View(viewModel);
+        var date = DateTime.Parse(eventDate);
+        var availableAnimals = await db.Animals
+            .Where(a => a.Bookings.All(b => b.EventDate.Date != date.Date))
+            .Select(a => a.Name)
+            .ToListAsync();
+
+        return View(availableAnimals);
     }
 
     [HttpPost]
-    public IActionResult BookingWizard(BookingWizardVM viewModel)
+    public IActionResult SaveAnimals(List<string> SelectedAnimals)
     {
-        if (ModelState.IsValid)
-        {
-            var booking = new Booking
-            {
-                EventDate = viewModel.Booking.Date,
-                UserId = viewModel.Booking.User.Id,
-                User = new User
-                {
-                    Id = viewModel.Booking.User.Id,
-                    Email = viewModel.Booking.User.Email
-                },
-                AnimalId = viewModel.Booking.Animal.Id,
-                IsConfirmed = viewModel.Booking.IsConfirmed
-            };
-
-            _db.Bookings.Add(booking);
-            _db.SaveChanges();
-
-            return RedirectToAction("Details", new { id = booking.Id });
-        }
-
-        viewModel.AvailableAnimals = _db.Animals.ToList();
-        return View(viewModel);
+        HttpContext.Session.SetString("SelectedAnimals", string.Join(",", SelectedAnimals));
+        return RedirectToAction("StepThree");
     }
+    
+        
+    [HttpGet]
+    public IActionResult StepThree()
+    {
+        var selectedAnimals = HttpContext.Session.GetString("SelectedAnimals")?.Split(',');
+        return View(selectedAnimals);
+    }
+    
+    [HttpPost]
+    public IActionResult Finalize()
+    {
+        var eventDate = HttpContext.Session.GetString("EventDate");
+        var selectedAnimals = HttpContext.Session.GetString("SelectedAnimals")?.Split(',');
+        var price = selectedAnimals?.Length * 10 ?? 0;
+        var discount = selectedAnimals?.Length > 2 ? 5 : 0;
+
+        var booking = new Booking
+        {
+            EventDate = DateTime.Parse(eventDate),
+            Animals = selectedAnimals?.Select(name => new Animal { Name = name }).ToList(),
+            Price = price - discount,
+            Discount = discount
+        };
+
+        db.Bookings.Add(booking);
+        db.SaveChanges();
+
+        return RedirectToAction("Details", new { id = booking.Id });
+    }
+
 }

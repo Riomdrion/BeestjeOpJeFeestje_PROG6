@@ -1,0 +1,15 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var selectedAnimals = HttpContextAccessor.HttpContext?.Session.GetString("SelectedAnimals")?.Split(',');
+    var price = selectedAnimals?.Length * 10 ?? 0;
+    var discount = selectedAnimals?.Length > 2 ? 5 : 0;
+}
+
+<div class="container mt-5">
+    <h2>Stap 3: Bevestiging en prijsberekening</h2>
+    <p>Gekozen dieren: @string.Join(", ", selectedAnimals ?? [])</p>
+    <p>Prijs: €@(price - discount) (Korting: €@discount)</p>
+    <form method="post" asp-action="Finalize">
+        <button type="submit" class="btn btn-success">Bevestigen</button>
+    </form>
+</div>

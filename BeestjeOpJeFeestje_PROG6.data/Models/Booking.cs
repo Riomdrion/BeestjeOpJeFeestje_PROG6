@@ -6,7 +6,9 @@ public class Booking
     public int UserId { get; set; }
     public User User { get; set; }
     public int AnimalId { get; set; }
-    public Animal Animal { get; set; }
+    public List<Animal>? Animals { get; set; }
     public DateTime EventDate { get; set; }
     public bool IsConfirmed { get; set; }
+    public int Discount { get; set; }
+    public double Price { get; set; }
 }
