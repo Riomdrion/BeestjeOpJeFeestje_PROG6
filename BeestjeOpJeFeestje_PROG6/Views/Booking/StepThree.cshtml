@@ -1,15 +1,24 @@
-﻿@inject IHttpContextAccessor HttpContextAccessor
-@{
-    var selectedAnimals = HttpContextAccessor.HttpContext?.Session.GetString("SelectedAnimals")?.Split(',');
-    var price = selectedAnimals?.Length * 10 ?? 0;
-    var discount = selectedAnimals?.Length > 2 ? 5 : 0;
-}
+﻿@model BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM
 
 <div class="container mt-5">
-    <h2>Stap 3: Bevestiging en prijsberekening</h2>
-    <p>Gekozen dieren: @string.Join(", ", selectedAnimals ?? [])</p>
-    <p>Prijs: €@(price - discount) (Korting: €@discount)</p>
+    <h2>Stap 3: Controleer je gegevens</h2>
+    <h4>Gegevens</h4>
+    <p><strong>Datum:</strong> @Model.EventDate.ToString("dd-MM-yyyy")</p>
+    <h4>Gekozen dieren:</h4>
+    <ul>
+        @if (Model.Animals != null)
+        {
+            foreach (var animal in Model.Animals)
+            {
+                <li>@animal.Name</li>
+            }
+        }
+    </ul>
+    <h4>Prijsberekening:</h4>
+    <p><strong>Korting:</strong> @Model.Discount%</p>
+    <p><strong>Eindprijs:</strong> €@Model.Price.ToString("0.00")</p>
+
     <form method="post" asp-action="Finalize">
-        <button type="submit" class="btn btn-success">Bevestigen</button>
+        <button type="submit" class="btn btn-success">Boeking bevestigen</button>
     </form>
 </div>

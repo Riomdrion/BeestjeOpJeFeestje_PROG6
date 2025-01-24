@@ -1,17 +1,35 @@
-﻿@model List<string>
+﻿@using BeestjeOpJeFeestje_PROG6.ViewModel;
 
 <div class="container mt-5">
     <h2>Stap 2: Kies beschikbare dieren</h2>
     <form method="post" asp-action="SaveAnimals">
-        <div id="animalList" class="form-group">
-            @foreach (var animal in Model)
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Select</th>
+                <th>Animal Name</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Image</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var animal in Model.Animals)
             {
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="SelectedAnimals" value="@animal" id="@animal">
-                    <label class="form-check-label" for="@animal">@animal</label>
-                </div>
+                <tr for="SelectedAnimals" onclick="document.getElementById('@animal.Id').click()" style="cursor:pointer;">
+                    <td>
+                        <input class="form-check-input" type="checkbox" name="SelectedAnimals" value="@animal.Id" id="@animal.Id">
+                    </td>
+                    <td>@animal.Name</td>
+                    <td>@animal.Type</td>
+                    <td>@animal.Price.ToString("C")</td>
+                    <td>
+                        <img src="@animal.ImageUrl" alt="@animal.Name" style="max-height: 50px;" />
+                    </td>
+                </tr>
             }
-        </div>
+            </tbody>
+        </table>
         <button type="submit" class="btn btn-primary">Next</button>
     </form>
 </div>
