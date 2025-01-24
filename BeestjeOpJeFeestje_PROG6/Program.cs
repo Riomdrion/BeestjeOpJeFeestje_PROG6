@@ -19,6 +19,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true; // Beveiliging: alleen toegankelijk via HTTP
     options.Cookie.IsEssential = true; // Essentieel voor GDPR
 });
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices.JavaScript;
 using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using BeestjeOpJeFeestje_PROG6.data.Models;
+using BeestjeOpJeFeestje_PROG6.Services;
 using BeestjeOpJeFeestje_PROG6.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,10 @@ public class BookingController(ApplicationDbContext db) : Controller
     [HttpGet]
     public IActionResult StepOne()
     {
+        if (User.Identity is { IsAuthenticated: false })
+        {
+            return RedirectToAction("Login", "User");
+        }
         return View();
     }
     
@@ -34,10 +39,21 @@ public class BookingController(ApplicationDbContext db) : Controller
         var date = DateTime.Parse(eventDate);
         var availableAnimals = await db.Animals
             .Where(a => a.Bookings.All(b => b.EventDate.Date != date.Date))
-            .Select(a => a.Name)
             .ToListAsync();
+        
+        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
+        var user = await db.Users
+            .Include(u => u.Card) // Eager loading van de Card-relatie
+            .FirstOrDefaultAsync(u => u.Id == userId);
+        
+        StepTwoVM stepTwoVM = new()
+        {
+            AvailableAnimals = availableAnimals,
+            CanBook = CalculateNumberOfAnimals.GetMaxAnimals(user.Card),
+            CanBookVip = CalculateNumberOfAnimals.GetBookingVipStatus(user.Card)
+        };
 
-        return View(availableAnimals);
+        return View(stepTwoVM);
     }
 
     [HttpPost]
@@ -47,13 +63,44 @@ public class BookingController(ApplicationDbContext db) : Controller
         return RedirectToAction("StepThree");
     }
     
-        
     [HttpGet]
     public IActionResult StepThree()
     {
-        var selectedAnimals = HttpContext.Session.GetString("SelectedAnimals")?.Split(',');
-        return View(selectedAnimals);
+        // Haal de eerder opgeslagen gegevens op uit de sessie
+        var eventDateStr = HttpContext.Session.GetString("EventDate");
+        var selectedAnimalsStr = HttpContext.Session.GetString("SelectedAnimals");
+
+        if (string.IsNullOrEmpty(eventDateStr) || string.IsNullOrEmpty(selectedAnimalsStr))
+        {
+            return RedirectToAction("StepOne");
+        }
+
+        var eventDate = DateTime.Parse(eventDateStr);
+        var selectedAnimalNames = selectedAnimalsStr.Split(',');
+
+        // Maak een Booking-object voor de berekeningen
+        var booking = new Booking
+        {
+            EventDate = eventDate,
+            Animals = selectedAnimalNames.Select(name => new Animal { Name = name }).ToList()
+        };
+
+        // Bereken korting en prijs
+        var discount = PriceAndDiscountCalculator.CalculateDiscount(booking);
+        var finalPrice = PriceAndDiscountCalculator.CalculatePrice(booking, discount);
+
+        // Vul het ViewModel
+        var viewModel = new BookingVM
+        {
+            EventDate = eventDate,
+            Animals = booking.Animals,
+            Price = finalPrice,
+            Discount = discount
+        };
+
+        return View(viewModel);
     }
+
     
     [HttpPost]
     public IActionResult Finalize()

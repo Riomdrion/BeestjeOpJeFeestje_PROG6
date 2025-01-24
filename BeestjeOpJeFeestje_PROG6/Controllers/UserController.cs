@@ -19,9 +19,9 @@ public class UserController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index()
+    public IActionResult Login()
     {
-        return View("Login", new LoginViewModel());
+        return View(new LoginViewModel());
     }
 
     [HttpPost]
