@@ -4,40 +4,40 @@ namespace BeestjeOpJeFeestje_PROG6.Services
 {
     public static class PriceAndDiscountCalculator
     {
-        private static readonly Random Random = new Random();
+        private static readonly Random Random = new();
 
-        public static double CalculatePrice(Booking booking, int discount)
+        public static double CalculatePrice(double price, int discount)
         { 
-            double finalPrice = booking.Price * (double)(1 - discount / 100);
+            double finalPrice = price * (1 - discount / 100);
             return finalPrice;
         }
 
-        public static int CalculateDiscount(Booking booking, string cardType)
+        public static int CalculateDiscount(DateOnly eventdate, List<Animal> animals, string cardType)
         {
             int discount = 0;
 
             // 1. 10% korting bij 3 dieren van hetzelfde type
-            var groupedAnimals = booking.Animals.GroupBy(a => a.Type);
+            var groupedAnimals = animals.GroupBy(a => a.Type);
             if (groupedAnimals.Any(g => g.Count() >= 3))
             {
                 discount += 10;
             }
 
             // 2. 1/6 kans op 50% korting als er een dier met naam 'Eend' is
-            if (booking.Animals.Any(a => a.Name.Equals("Eend", StringComparison.OrdinalIgnoreCase)) &&
+            if (animals.Any(a => a.Name.Equals("Eend", StringComparison.OrdinalIgnoreCase)) &&
                 Random.Next(1, 7) == 1)
             {
                 discount += 50;
             }
 
             // 3. 15% korting op maandag of dinsdag
-            if (booking.EventDate.DayOfWeek == DayOfWeek.Monday || booking.EventDate.DayOfWeek == DayOfWeek.Tuesday)
+            if (eventdate.DayOfWeek == DayOfWeek.Monday || eventdate.DayOfWeek == DayOfWeek.Tuesday)
             {
                 discount += 15;
             }
 
             // 4. 2% korting extra per letter (A, B, C, etc.) in de naam van een dier
-            foreach (var animal in booking.Animals)
+            foreach (var animal in animals)
             {
                 var name = animal.Name.ToUpper();
                 for (char letter = 'A'; letter <= 'Z'; letter++)

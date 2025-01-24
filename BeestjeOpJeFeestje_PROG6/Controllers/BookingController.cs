@@ -102,23 +102,18 @@ public class BookingController(ApplicationDbContext db) : Controller
 
         var eventDate = DateTime.Parse(eventDateStr);
         var selectedAnimalIds = selectedAnimalsStr.Split(',').Select(int.Parse).ToList();
-
-        // Maak een Booking-object voor de berekeningen
-        var booking = new Booking
-        {
-            EventDate = eventDate,
-            Animals = await db.Animals.Where(a => selectedAnimalIds.Contains(a.Id)).ToListAsync()
-        };
+        var selectedAnimals = await db.Animals.Where(a => selectedAnimalIds.Contains(a.Id)).ToListAsync();
+        double price = selectedAnimals.Sum(a => a.Price);
 
         // Bereken korting en prijs
-        var discount = PriceAndDiscountCalculator.CalculateDiscount(booking, cardValue);
-        var finalPrice = PriceAndDiscountCalculator.CalculatePrice(booking, discount);
+        var discount = PriceAndDiscountCalculator.CalculateDiscount(DateOnly.FromDateTime(eventDate), selectedAnimals, cardValue);
+        var finalPrice = PriceAndDiscountCalculator.CalculatePrice(price, discount);
 
         // Vul het ViewModel
         var viewModel = new BookingVM
         {
             EventDate = eventDate,
-            Animals = booking.Animals,
+            Animals = selectedAnimals,
             Price = finalPrice,
             Discount = discount
         };
@@ -128,26 +123,33 @@ public class BookingController(ApplicationDbContext db) : Controller
 
 
     [HttpPost]
-    public IActionResult Finalize()
+    public async Task<IActionResult> Finalize(BookingVM bookingvm)
     {
-        var eventDate = HttpContext.Session.GetString("EventDate");
-        var selectedAnimals = HttpContext.Session.GetString("SelectedAnimals")?.Split(',');
-        var price = selectedAnimals?.Length * 10 ?? 0;
-        var discount = selectedAnimals?.Length > 2 ? 5 : 0;
-
-        var booking = new Booking
+        var selectedAnimalsStr = HttpContext.Session.GetString("SelectedAnimals");
+        var selectedAnimalIds = selectedAnimalsStr.Split(',').Select(int.Parse).ToList();
+        var selectedAnimals = await db.Animals.Where(a => selectedAnimalIds.Contains(a.Id)).ToListAsync();
+        
+        // Maak een nieuwe booking en koppel de dieren
+        var value = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+        if (value != null)
         {
-            EventDate = DateTime.Parse(eventDate),
-            Animals = selectedAnimals?.Select(name => new Animal { Name = name }).ToList(),
-            Price = price - discount,
-            Discount = discount
-        };
+            var booking = new Booking
+            {
+                EventDate = bookingvm.EventDate,
+                Animals = selectedAnimals,
+                Price = bookingvm.Price,
+                Discount = bookingvm.Discount,
+                UserId = int.Parse(value)
+            };
 
-        db.Bookings.Add(booking);
-        db.SaveChanges();
+            db.Bookings.Add(booking);
+            db.SaveChanges();
 
-        return RedirectToAction("Details", new { id = booking.Id });
+            return RedirectToAction("Read", new { id = booking.Id });
+        }
+        return RedirectToAction("Login", "User");
     }
+
 
     [HttpGet]
     public async Task<IActionResult> Read()
@@ -155,7 +157,7 @@ public class BookingController(ApplicationDbContext db) : Controller
         // Controleer of de gebruiker is ingelogd
         if (User.Identity is { IsAuthenticated: false })
         {
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "User");
         }
 
         // Haal de ingelogde gebruiker-ID op
@@ -197,6 +199,7 @@ public class BookingController(ApplicationDbContext db) : Controller
             Discount = b.Discount,
             User = b.User
         }).ToList();
+        
         return View(bookingVMs);
     }
 }

@@ -11,17 +11,17 @@
     <div class="table-responsive">
         <table class="table table-hover align-middle text-center">
             <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Datum</th>
-                    <th>Dieren</th>
-                    <th>Prijs</th>
-                    <th>Korting</th>
-                    @if (User.IsInRole("Admin"))
-                    {
-                        <th>Gebruiker</th>
-                    }
-                </tr>
+            <tr>
+                <th class="text-start">Gebruiker</th>
+                <th>Datum</th>
+                <th>Dieren</th>
+                <th>Prijs</th>
+                <th>Korting</th>
+                @if (User.IsInRole("Admin"))
+                {
+                    <th>Gebruiker</th>
+                }
+            </tr>
             </thead>
             <tbody>
                 @if (Model.Count == 0)
@@ -37,7 +37,7 @@
                     @foreach (var booking in Model)
                     {
                         <tr>
-                            <td>@booking.Id</td>
+                            <td class="text-start">@booking.User.Email</td>
                             <td>@booking.EventDate.ToString("dd-MM-yyyy")</td>
                             <td>
                                 <ul class="list-unstyled">

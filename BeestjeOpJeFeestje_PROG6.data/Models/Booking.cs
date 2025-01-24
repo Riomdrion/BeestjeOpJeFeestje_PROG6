@@ -8,7 +8,6 @@ public class Booking
     public int AnimalId { get; set; }
     public List<Animal>? Animals { get; set; }
     public DateTime EventDate { get; set; }
-    public bool IsConfirmed { get; set; }
     public int Discount { get; set; }
     public double Price { get; set; }
 }
