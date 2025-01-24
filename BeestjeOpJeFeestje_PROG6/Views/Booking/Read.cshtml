@@ -1,44 +1,62 @@
 ﻿@model List<BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM>
 
 <div class="container mt-5">
-    <h2>Mijn Boekingen</h2>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Datum</th>
-            <th>Dieren</th>
-            <th>Prijs</th>
-            <th>Korting</th>
-            @if (User.IsInRole("Admin"))
-            {
-                <th>Gebruiker</th>
-            }
-            <th>Bevestigd</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var booking in Model)
-        {
-            <tr>
-                <td>@booking.Id</td>
-                <td>@booking.EventDate.ToString("dd-MM-yyyy")</td>
-                <td>
-                    <ul>
-                        @foreach (var animal in booking.Animals)
-                        {
-                            <li>@animal.Name</li>
-                        }
-                    </ul>
-                </td>
-                <td>€@booking.Price.ToString("0.00")</td>
-                <td>@booking.Discount%</td>
-                @if (User.IsInRole("Admin"))
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Mijn Boekingen</h2>
+        <a asp-action="Upsert" asp-controller="Animal" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Dier Toevoegen
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Datum</th>
+                    <th>Dieren</th>
+                    <th>Prijs</th>
+                    <th>Korting</th>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th>Gebruiker</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
                 {
-                    <td>@booking.User.PhoneNumber</td>
+                    <tr>
+                        <td colspan="@((User.IsInRole("Admin") ? 6 : 5))" class="text-muted">
+                            Geen boekingen gevonden.
+                        </td>
+                    </tr>
                 }
-            </tr>
-        }
-        </tbody>
-    </table>
+                else
+                {
+                    @foreach (var booking in Model)
+                    {
+                        <tr>
+                            <td>@booking.Id</td>
+                            <td>@booking.EventDate.ToString("dd-MM-yyyy")</td>
+                            <td>
+                                <ul class="list-unstyled">
+                                    @foreach (var animal in booking.Animals)
+                                    {
+                                        <li><span class="badge bg-info text-dark">@animal.Name</span></li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>€@booking.Price.ToString("0.00")</td>
+                            <td><span class="badge bg-success">@booking.Discount%</span></td>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <td>@booking.User.PhoneNumber</td>
+                            }
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

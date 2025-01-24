@@ -48,7 +48,8 @@ public class UserController : Controller
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.Email), // Gebruik Email als Name claim
-                        new Claim("UserId", user.Id.ToString()) // Voeg de UserId toe als custom claim
+                        new Claim("UserId", user.Id.ToString()), // Voeg de UserId toe als custom claim
+                        new Claim(ClaimTypes.Role, user.Role.ToString()) 
                     };
 
                     // Maak een ClaimsIdentity
