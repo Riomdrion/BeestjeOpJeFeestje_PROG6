@@ -1,5 +1,11 @@
 ﻿@model List<BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM>
 
+@{
+    var roleClaim = User.Claims.FirstOrDefault(c => c.Type == "role");
+    bool isAdmin = roleClaim != null && int.TryParse(roleClaim.Value, out int roleValue) && roleValue == 1;
+}
+
+
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fw-bold">Mijn Boekingen</h2>
@@ -17,45 +23,45 @@
                 <th>Dieren</th>
                 <th>Prijs</th>
                 <th>Korting</th>
-                @if (User.IsInRole("Admin"))
+                @if (isAdmin)
                 {
                     <th>Gebruiker</th>
                 }
             </tr>
             </thead>
             <tbody>
-                @if (Model.Count == 0)
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="@((isAdmin ? 6 : 5))" class="text-muted">
+                        Geen boekingen gevonden.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var booking in Model)
                 {
                     <tr>
-                        <td colspan="@((User.IsInRole("Admin") ? 6 : 5))" class="text-muted">
-                            Geen boekingen gevonden.
+                        <td>@booking.EventDate.ToString("dd-MM-yyyy")</td>
+                        <td>
+                            <div class="d-flex flex-wrap justify-content-center">
+                                @foreach (var animal in booking.Animals)
+                                {
+                                    <span class="badge bg-info text-dark m-1">@animal.Name</span>
+                                }
+                            </div>
                         </td>
+                        <td>€@booking.Price.ToString("0.00")</td>
+                        <td><span class="badge bg-success">@booking.Discount%</span></td>
+                        @if (isAdmin)
+                        {
+                            <td class="text-start">@booking.User.Email</td>
+                            <td>@booking.User.PhoneNumber</td>
+                        }
                     </tr>
                 }
-                else
-                {
-                    @foreach (var booking in Model)
-                    {
-                        <tr>
-                            <td class="text-start">@booking.User.Email</td>
-                            <td>@booking.EventDate.ToString("dd-MM-yyyy")</td>
-                            <td>
-                                <ul class="list-unstyled">
-                                    @foreach (var animal in booking.Animals)
-                                    {
-                                        <li><span class="badge bg-info text-dark">@animal.Name</span></li>
-                                    }
-                                </ul>
-                            </td>
-                            <td>€@booking.Price.ToString("0.00")</td>
-                            <td><span class="badge bg-success">@booking.Discount%</span></td>
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <td>@booking.User.PhoneNumber</td>
-                            }
-                        </tr>
-                    }
-                }
+            }
             </tbody>
         </table>
     </div>
