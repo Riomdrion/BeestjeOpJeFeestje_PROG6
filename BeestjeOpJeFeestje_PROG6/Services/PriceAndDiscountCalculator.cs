@@ -12,7 +12,7 @@ namespace BeestjeOpJeFeestje_PROG6.Services
             return finalPrice;
         }
 
-        public static int CalculateDiscount(Booking booking)
+        public static int CalculateDiscount(Booking booking, string cardType)
         {
             int discount = 0;
 
@@ -50,7 +50,7 @@ namespace BeestjeOpJeFeestje_PROG6.Services
             }
 
             // 5. 10% korting voor klanten met een klantenkaart
-            if (booking.User.Card != null)
+            if (cardType != "geen")
             {
                 discount += 10;
             }

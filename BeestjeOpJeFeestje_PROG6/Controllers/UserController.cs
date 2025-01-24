@@ -45,21 +45,43 @@ public class UserController : Controller
                 if (encryptedInputPassword == user.PasswordHash)
                 {
                     // Maak claims aan en voeg de UserId toe
-                    var claims = new List<Claim>
+                    if (user.Card != null)
                     {
-                        new Claim(ClaimTypes.Name, user.Email), // Gebruik Email als Name claim
-                        new Claim("UserId", user.Id.ToString()), // Voeg de UserId toe als custom claim
-                        new Claim(ClaimTypes.Role, user.Role.ToString()) 
-                    };
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, user.Email), // Gebruik Email als Name claim
+                            new Claim("UserId", user.Id.ToString()), // Voeg de UserId toe als custom claim
+                            new Claim("Role", user.Role.ToString()),
+                            new Claim("Card", user.Card)
+                        };
 
-                    // Maak een ClaimsIdentity
-                    var claimsIdentity = new ClaimsIdentity(claims, "Login");
+                        // Maak een ClaimsIdentity
+                        var claimsIdentity = new ClaimsIdentity(claims, "Login");
 
-                    // Maak een ClaimsPrincipal
-                    var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                        // Maak een ClaimsPrincipal
+                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
-                    // Log de gebruiker in
-                    await HttpContext.SignInAsync(claimsPrincipal);
+                        // Log de gebruiker in
+                        await HttpContext.SignInAsync(claimsPrincipal);
+                    }
+                    else
+                    {
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, user.Email), // Gebruik Email als Name claim
+                            new Claim("UserId", user.Id.ToString()), // Voeg de UserId toe als custom claim
+                            new Claim(ClaimTypes.Role, user.Role.ToString())
+                        };
+
+                        // Maak een ClaimsIdentity
+                        var claimsIdentity = new ClaimsIdentity(claims, "Login");
+
+                        // Maak een ClaimsPrincipal
+                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                        // Log de gebruiker in
+                        await HttpContext.SignInAsync(claimsPrincipal);
+                    }
 
                     TempData["Message"] = "Login succesvol!";
                     return RedirectToAction("Read", "Animal"); // Redirect after successful login

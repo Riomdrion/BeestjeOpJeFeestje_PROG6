@@ -6,11 +6,11 @@ public static class CalculateNumberOfAnimals
     {
         switch (cardType.ToLower())
         {
-            case "zilveren":
+            case "silver":
                 return 4;
-            case "gouden":
+            case "gold":
                 return int.MaxValue;
-            case "platina":
+            case "platinum":
                 return int.MaxValue; 
             default:
                 return 3;
@@ -19,7 +19,7 @@ public static class CalculateNumberOfAnimals
     
     public static bool GetBookingVipStatus(string cardType)
     {
-        if (cardType == "platina")
+        if (cardType.ToLower() == "platinum")
         {
             return true;
         }

@@ -17,16 +17,17 @@ public class BookingController(ApplicationDbContext db) : Controller
         {
             return RedirectToAction("Login", "User");
         }
+
         return View();
     }
-    
+
     [HttpPost]
     public IActionResult SaveDate(DateOnly EventDate)
     {
         HttpContext.Session.SetString("EventDate", EventDate.ToString("yyyy-MM-dd"));
         return Redirect("StepTwo");
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> StepTwo()
     {
@@ -36,36 +37,60 @@ public class BookingController(ApplicationDbContext db) : Controller
             return RedirectToAction("StepOne");
         }
 
+        var cardValue = User.Claims.FirstOrDefault(c => c.Type == "Card")?.Value;
         var date = DateTime.Parse(eventDate);
         var availableAnimals = await db.Animals
-            .Where(a => a.Bookings.All(b => b.EventDate.Date != date.Date))
+            .Where(a => a.Bookings.All(b => b.EventDate.Date != date.Date) &&
+                        (CalculateNumberOfAnimals.GetBookingVipStatus(cardValue) || a.Type != "vip"))
+            .OrderBy(a => a.Type)
             .ToListAsync();
+
+        var canBook = CalculateNumberOfAnimals.GetMaxAnimals(cardValue);
         
-        var userId = int.Parse(User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value ?? "0");
-        var user = await db.Users
-            .Include(u => u.Card) // Eager loading van de Card-relatie
-            .FirstOrDefaultAsync(u => u.Id == userId);
-        
-        StepTwoVM stepTwoVM = new()
+        var viewModel = new StepTwoVM
         {
             AvailableAnimals = availableAnimals,
-            CanBook = CalculateNumberOfAnimals.GetMaxAnimals(user.Card),
-            CanBookVip = CalculateNumberOfAnimals.GetBookingVipStatus(user.Card)
+            CanBook = canBook
         };
+        
 
-        return View(stepTwoVM);
+        return View(viewModel);
     }
 
     [HttpPost]
-    public IActionResult SaveAnimals(List<string> SelectedAnimals)
+    public IActionResult SaveAnimals(List<string> selectedAnimals)
     {
-        HttpContext.Session.SetString("SelectedAnimals", string.Join(",", SelectedAnimals));
+        var cardValue = User.Claims.FirstOrDefault(c => c.Type == "Card")?.Value;
+        var canBook = CalculateNumberOfAnimals.GetMaxAnimals(cardValue);
+        
+        // Haal de geselecteerde dieren op uit de database of een service
+        var selectedAnimalDetails = db.Animals.Where(a => selectedAnimals.Select(int.Parse).Contains(a.Id)).ToList();
+
+        // Valideer de boeking
+        var validationErrors = BookingValidationService.ValidateBooking(selectedAnimalDetails, canBook, DateTime.Today);
+
+        // Als er validatiefouten zijn, toon deze en ga terug naar de vorige stap
+        if (validationErrors.Any())
+        {
+            foreach (var error in validationErrors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            return View("StepTwo");
+        }
+
+        // Als alle validaties slagen, sla de selectie op in de sessie
+        HttpContext.Session.SetString("SelectedAnimals", string.Join(",", selectedAnimals));
+
         return RedirectToAction("StepThree");
     }
-    
+
+
     [HttpGet]
-    public IActionResult StepThree()
+    public async Task<IActionResult> StepThree()
     {
+        var cardValue = User.Claims.FirstOrDefault(c => c.Type == "Card")?.Value ?? "Geen";
+
         // Haal de eerder opgeslagen gegevens op uit de sessie
         var eventDateStr = HttpContext.Session.GetString("EventDate");
         var selectedAnimalsStr = HttpContext.Session.GetString("SelectedAnimals");
@@ -76,17 +101,17 @@ public class BookingController(ApplicationDbContext db) : Controller
         }
 
         var eventDate = DateTime.Parse(eventDateStr);
-        var selectedAnimalNames = selectedAnimalsStr.Split(',');
+        var selectedAnimalIds = selectedAnimalsStr.Split(',').Select(int.Parse).ToList();
 
         // Maak een Booking-object voor de berekeningen
         var booking = new Booking
         {
             EventDate = eventDate,
-            Animals = selectedAnimalNames.Select(name => new Animal { Name = name }).ToList()
+            Animals = await db.Animals.Where(a => selectedAnimalIds.Contains(a.Id)).ToListAsync()
         };
 
         // Bereken korting en prijs
-        var discount = PriceAndDiscountCalculator.CalculateDiscount(booking);
+        var discount = PriceAndDiscountCalculator.CalculateDiscount(booking, cardValue);
         var finalPrice = PriceAndDiscountCalculator.CalculatePrice(booking, discount);
 
         // Vul het ViewModel
@@ -101,7 +126,7 @@ public class BookingController(ApplicationDbContext db) : Controller
         return View(viewModel);
     }
 
-    
+
     [HttpPost]
     public IActionResult Finalize()
     {
@@ -128,7 +153,7 @@ public class BookingController(ApplicationDbContext db) : Controller
     public async Task<IActionResult> Read()
     {
         // Controleer of de gebruiker is ingelogd
-        if (!User.Identity.IsAuthenticated)
+        if (User.Identity is { IsAuthenticated: false })
         {
             return RedirectToAction("Login", "Account");
         }
@@ -174,6 +199,4 @@ public class BookingController(ApplicationDbContext db) : Controller
         }).ToList();
         return View(bookingVMs);
     }
-
-
 }
