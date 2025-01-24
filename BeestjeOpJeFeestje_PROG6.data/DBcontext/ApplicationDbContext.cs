@@ -36,7 +36,7 @@ namespace BeestjeOpJeFeestje_PROG6.data.DBcontext
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.PasswordHash).IsRequired();
                 entity.Property(e => e.Role).IsRequired();
-                entity.Property(e => e.adress).IsRequired();
+                entity.Property(e => e.PhoneNumber).IsRequired();
                 entity.Property(e => e.Card)
                     .HasMaxLength(10)
                     .IsRequired(false);

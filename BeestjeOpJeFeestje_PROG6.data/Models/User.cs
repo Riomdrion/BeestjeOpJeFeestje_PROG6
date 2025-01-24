@@ -7,6 +7,8 @@ public class User
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public string? Card { get; set; }
+    
+    public int PhoneNumber { get; set; }
     public ICollection<Booking> Bookings { get; set; }
     public int Role { get; set; }
     public String adress { get; set; }
