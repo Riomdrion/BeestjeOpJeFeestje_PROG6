@@ -125,7 +125,7 @@ public class BookingController(ApplicationDbContext db) : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Bookings()
+    public async Task<IActionResult> Read()
     {
         // Controleer of de gebruiker is ingelogd
         if (!User.Identity.IsAuthenticated)

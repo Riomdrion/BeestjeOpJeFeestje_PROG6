@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/Content/site.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     @RenderSection("Scripts", required: false)
     <link rel="icon" href="https://plus.unsplash.com/premium_photo-1661838877293-28e9628e2d50?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" type="image/x-icon" />
 </head>
@@ -22,14 +23,23 @@
             <nav>
                 <ul class="nav nav-pills">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="@Url.Action("Read", "Booking")"><i class="fas fa-home"></i>Book an Animal</a>
+                        <a class="nav-link text-white" href="@Url.Action("Read", "Booking")"><i class="fi fi-rr-book-alt"></i> Book an Animal</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="@Url.Action("Read", "Animal")"><i class="fas fa-user-ninja"></i>Animal</a>
+                        <a class="nav-link text-white" href="@Url.Action("Read", "Animal")"><i class="fi fi-rr-paw"></i> Animals</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="@Url.Action("Read", "User")"><i class="fas fa-tools"></i>Users</a>
+                        <a class="nav-link text-white" href="@Url.Action("Read", "User")"><i class="fi fi-rr-user"></i> Users</a>
                     </li>
+                    <li class="nav-item text-center p-1">
+                        <span class="d-block text-sm">@User.Identity?.Name</span>
+                        <a class="d-block text-xs text-muted bg-white rounded w-50 text-black" 
+                           asp-action="Logout" asp-controller="User" 
+                           style="text-decoration: none; color: black;">
+                            <i class="fi fi-rr-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+
                 </ul>
             </nav>
         </div>
