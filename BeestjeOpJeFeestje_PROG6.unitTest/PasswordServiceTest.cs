@@ -1,8 +1,9 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace BeestjeOpJeFeestje_PROG6.unitTest;
 
-public class Tests
+public class PasswordServcieTest
 {
     // Test to ensure that encrypting and decrypting returns the original password
     [Test]
@@ -33,15 +34,15 @@ public class Tests
         Assert.That(encryptedPassword, Is.Not.EqualTo(password), "The encrypted password should be different from the original password.");
     }
 
-    // Test to ensure decryption of an invalid encrypted password throws an exception
     [Test]
-    public void DecryptPassword_WithInvalidData_ThrowsFormatException()
+    public void DecryptPassword_WithCorruptData_ThrowsCryptographicException()
     {
         // Arrange
-        string invalidEncryptedPassword = "InvalidEncryptedPassword123";
+        string corruptEncryptedPassword = Convert.ToBase64String(Encoding.UTF8.GetBytes("RandomString"));
 
         // Act & Assert
-        var ex = Assert.Throws<FormatException>(() => PasswordService.DecryptPassword(invalidEncryptedPassword));
-        Assert.That(ex.Message, Does.Contain("The input is not in a valid Base64 format"));
+        var ex = Assert.Throws<CryptographicException>(() => PasswordService.DecryptPassword(corruptEncryptedPassword));
+        Assert.That(ex.Message, Does.Contain("Padding is invalid") // May vary based on the decryption failure reason
+                          .Or.Contain("The input data is not a complete block"));
     }
 }
