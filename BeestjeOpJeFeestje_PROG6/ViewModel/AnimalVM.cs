@@ -1,4 +1,6 @@
-﻿public class AnimalViewModel
+﻿namespace BeestjeOpJeFeestje_PROG6.ViewModel;
+
+public class AnimalViewModel
 {
     public int Id { get; set; }
     public string Name { get; set; }

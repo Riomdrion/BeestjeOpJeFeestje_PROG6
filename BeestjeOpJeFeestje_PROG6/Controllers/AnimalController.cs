@@ -1,5 +1,6 @@
 ﻿using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using BeestjeOpJeFeestje_PROG6.data.Models;
+using BeestjeOpJeFeestje_PROG6.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BeestjeOpJeFeestje_PROG6.Controllers;
@@ -70,17 +71,19 @@ public class AnimalController(ApplicationDbContext db) : Controller
       return View(animalViewModel);
    }
    
-   [HttpGet]
    [HttpPost]
    [ValidateAntiForgeryToken]
    public async Task<IActionResult> Delete(int id)
    {
+      Console.WriteLine($"Attempting to delete Animal with Id: {id}");
       var animal = await db.Animals.FindAsync(id);
       if (animal == null)
       {
+         Console.WriteLine($"Animal with Id: {id} not found");
          return NotFound();
       }
-      TempData["Message"] = $"{animal.Name} is succesvol verwijderd.";
+
+      Console.WriteLine($"Deleting Animal: {animal.Name}");
       db.Animals.Remove(animal);
       await db.SaveChangesAsync();
       return RedirectToAction("Read");

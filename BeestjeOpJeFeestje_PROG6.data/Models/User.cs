@@ -1,5 +1,4 @@
-﻿using BeestjeOpJeFeestje_PROG6.data.DBcontext;
-using BeestjeOpJeFeestje_PROG6.data.Models;
+﻿namespace BeestjeOpJeFeestje_PROG6.data.Models;
 
 public class User
 {

@@ -1,7 +1,7 @@
-using System;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+
+namespace BeestjeOpJeFeestje_PROG6.Services;
 
 public static class PasswordService
 {

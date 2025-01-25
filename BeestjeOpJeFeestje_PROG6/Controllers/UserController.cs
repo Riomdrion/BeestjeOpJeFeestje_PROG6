@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Security.Claims;
 using BeestjeOpJeFeestje_PROG6;
+using BeestjeOpJeFeestje_PROG6.data.Models;
+using BeestjeOpJeFeestje_PROG6.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
