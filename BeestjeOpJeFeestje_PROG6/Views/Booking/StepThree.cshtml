@@ -1,30 +1,47 @@
 ﻿@model BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM
-
-<div class="container mt-5">
-    <h2>Stap 3: Controleer je gegevens</h2>
-    <h4>Gegevens</h4>
-    <p><strong>Datum:</strong> @Model.EventDate.ToString("dd-MM-yyyy")</p>
-    <h4>Gekozen dieren:</h4>
-    <ul>
-        @if (Model.Animals != null)
-        {
-            foreach (var animal in Model.Animals)
+<div class="container">
+    <div class="d-flex justify-content-center align-items-center mb-4">
+        <div class="step text-center">
+            <div class="circle bg-primary text-white">1</div>
+            <small>pick a date</small>
+        </div>
+        <div class="line flex-grow-1 bg-primary mb-4"></div>
+        <div class="step text-center">
+            <div class="circle bg-primary text-white">2</div>
+            <small>choose animals</small>
+        </div>
+        <div class="line flex-grow-1 bg-primary mb-4"></div>
+        <div class="step text-center">
+            <div class="circle bg-primary text-white">3</div>
+            <small>Confirm booking</small>
+        </div>
+    </div>
+    <div class="container mt-5">
+        <h2>Stap 3: Controleer je gegevens</h2>
+        <h4>Gegevens</h4>
+        <p><strong>Datum:</strong> @Model.EventDate.ToString("dd-MM-yyyy")</p>
+        <h4>Gekozen dieren:</h4>
+        <ul>
+            @if (Model.Animals != null)
             {
-                <li>@animal.Name</li>
+                foreach (var animal in Model.Animals)
+                {
+                    <li>@animal.Name</li>
+                }
             }
-        }
-    </ul>
-    <h4>Prijsberekening:</h4>
-    <p><strong>Korting:</strong> @Model.Discount%</p>
-    <p><strong>Eindprijs:</strong> €@Model.Price.ToString("0.00")</p>
+        </ul>
+        <h4>Prijsberekening:</h4>
+        <p><strong>Korting:</strong> @Model.Discount%</p>
+        <p><strong>Eindprijs:</strong> €@Model.Price.ToString("0.00")</p>
 
-    <form method="post" asp-action="Finalize">
-        @Html.HiddenFor(model => model.EventDate)
-        @Html.HiddenFor(model => model.Animals)
-        @Html.HiddenFor(model => model.Price)
-        @Html.HiddenFor(model => model.Discount)
-        
-        <button type="submit" class="btn btn-success">Boeking bevestigen</button>
+        <form method="post" asp-action="Finalize">
+            @Html.HiddenFor(model => model.EventDate)
+            @Html.HiddenFor(model => model.Animals)
+            @Html.HiddenFor(model => model.Price)
+            @Html.HiddenFor(model => model.Discount)
 
-    </form>
+            <button type="submit" class="btn btn-success">Boeking bevestigen</button>
+
+        </form>
+    </div>
 </div>

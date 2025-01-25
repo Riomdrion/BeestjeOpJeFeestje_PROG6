@@ -60,6 +60,7 @@ public class BookingController(ApplicationDbContext db) : Controller
     [HttpPost]
     public IActionResult SaveAnimals(List<string> selectedAnimals)
     {
+        DateTime eventDate = Convert.ToDateTime(HttpContext.Session.GetString("EventDate"));
         var cardValue = User.Claims.FirstOrDefault(c => c.Type == "Card")?.Value;
         var canBook = CalculateNumberOfAnimals.GetMaxAnimals(cardValue);
         
@@ -67,16 +68,23 @@ public class BookingController(ApplicationDbContext db) : Controller
         var selectedAnimalDetails = db.Animals.Where(a => selectedAnimals.Select(int.Parse).Contains(a.Id)).ToList();
 
         // Valideer de boeking
-        var validationErrors = BookingValidationService.ValidateBooking(selectedAnimalDetails, canBook, DateTime.Today);
+        var validationErrors = BookingValidationService.ValidateBooking(selectedAnimalDetails, canBook, eventDate);
 
         // Als er validatiefouten zijn, toon deze en ga terug naar de vorige stap
         if (validationErrors.Any())
         {
             foreach (var error in validationErrors)
             {
+                TempData["Message"] = error;
+                TempData["AlertClass"] = "error";
                 ModelState.AddModelError(string.Empty, error);
             }
-            return View("StepTwo");
+            StepTwoVM viewmodel = new StepTwoVM
+            {
+                AvailableAnimals = db.Animals.ToList(),
+                CanBook = canBook
+            };
+            return View("StepTwo", viewmodel);
         }
 
         // Als alle validaties slagen, sla de selectie op in de sessie
