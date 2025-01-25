@@ -210,4 +210,29 @@ public class BookingController(ApplicationDbContext db) : Controller
         
         return View(bookingVMs);
     }
+    
+    [HttpPost]
+    public IActionResult Delete(int id)
+    {
+        var booking = db.Bookings
+            .Include(b => b.Animals)
+            .FirstOrDefault(b => b.Id == id);
+
+        if (booking != null)
+        {
+            db.Bookings.Remove(booking);
+            db.SaveChanges();
+
+            TempData["Message"] = "Booking successfully deleted.";
+            TempData["AlertClass"] = "success";
+        }
+        else
+        {
+            TempData["Message"] = "Booking not found.";
+            TempData["AlertClass"] = "error";
+        }
+
+        return RedirectToAction("Read");
+    }
+
 }

@@ -1,14 +1,32 @@
 ﻿@model List<BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM>
 
 @{
-    var roleClaim = User.Claims.FirstOrDefault(c => c.Type == "role");
+    var roleClaim = User.Claims.FirstOrDefault(c => c.Type == "Role");
     bool isAdmin = roleClaim != null && int.TryParse(roleClaim.Value, out int roleValue) && roleValue == 1;
 }
 
 
-<div class="container mt-5">
+<div class="container">
+    @if (TempData["Message"] != null)
+    {
+        var message = TempData["Message"].ToString();
+        var alertClass = message.IndexOf("error", StringComparison.OrdinalIgnoreCase) >= 0
+            ? "alert-danger"
+            : "alert-success";
+        <div class="alert @alertClass" id="error-message">
+            @TempData["Message"]
+        </div>
+    }
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Mijn Boekingen</h2>
+        @if (isAdmin)
+        {
+            <h1 class="fw-bold">Booking Overview</h1>
+        }
+        else
+        {
+            <h1 class="fw-bold">My Bookings</h1>
+        }
         <a asp-action="StepOne" asp-controller="Booking" class="btn btn-primary">
             <i class="bi bi-plus-circle"></i> Book an Animal
         </a>
@@ -18,15 +36,16 @@
         <table class="table table-hover align-middle text-center">
             <thead class="table-dark">
             <tr>
-                <th class="text-start">Gebruiker</th>
-                <th>Datum</th>
-                <th>Dieren</th>
-                <th>Prijs</th>
-                <th>Korting</th>
+                <th>Date</th>
+                <th>Animals</th>
+                <th>Price</th>
+                <th>Discount</th>
                 @if (isAdmin)
                 {
-                    <th>Gebruiker</th>
+                    <th>User</th>
+                    <th>Telefoonnummer</th>
                 }
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -34,7 +53,7 @@
             {
                 <tr>
                     <td colspan="@((isAdmin ? 6 : 5))" class="text-muted">
-                        Geen boekingen gevonden.
+                       No Bookings Found
                     </td>
                 </tr>
             }
@@ -59,6 +78,11 @@
                             <td class="text-start">@booking.User.Email</td>
                             <td>@booking.User.PhoneNumber</td>
                         }
+                        <td>
+                        <form asp-action="Delete" asp-controller="Booking" method="post">
+                            <input type="hidden" name="id" value="@booking.Id" />
+                            <button type="submit" class="btn btn-danger"><i class="fi fi-rr-trash"></i></button>
+                        </form>
                     </tr>
                 }
             }

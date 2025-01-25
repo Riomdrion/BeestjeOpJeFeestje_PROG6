@@ -70,7 +70,7 @@ public class UserController : Controller
                         {
                             new Claim(ClaimTypes.Name, user.Email), // Gebruik Email als Name claim
                             new Claim("UserId", user.Id.ToString()), // Voeg de UserId toe als custom claim
-                            new Claim(ClaimTypes.Role, user.Role.ToString())
+                            new Claim("Role", user.Role.ToString())
                         };
 
                         // Maak een ClaimsIdentity
@@ -84,7 +84,7 @@ public class UserController : Controller
                     }
 
                     TempData["Message"] = "Login succesvol!";
-                    return RedirectToAction("Read", "Animal"); // Redirect after successful login
+                    return RedirectToAction("Read", "Booking"); // Redirect after successful login
                 }
                 else
                 {
@@ -103,7 +103,8 @@ public class UserController : Controller
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync();
-        return RedirectToAction("Login", "Account");
+        TempData["Message"] = "Logout succesvol!";
+        return RedirectToAction("Login");
     }
     
 
