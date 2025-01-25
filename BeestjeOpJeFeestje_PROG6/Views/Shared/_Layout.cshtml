@@ -32,6 +32,11 @@
         margin: 0 10px;
     }
 </style>
+@{
+    var roleClaim = User.Claims.FirstOrDefault(c => c.Type == "Role");
+    bool isAdmin = roleClaim != null && int.TryParse(roleClaim.Value, out int roleValue) && roleValue == 1;
+}
+
 <body>
 <div class="container-fluid p-0">
     <header class="bg-dark text-white p-3 mb-4">
@@ -42,12 +47,15 @@
                     <li class="nav-item">
                         <a class="nav-link text-white" href="@Url.Action("Read", "Booking")"><i class="fi fi-rr-book-alt"></i> Book an Animal</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="@Url.Action("Read", "Animal")"><i class="fi fi-rr-paw"></i> Animals</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="@Url.Action("Read", "User")"><i class="fi fi-rr-user"></i> Users</a>
-                    </li>
+                    @if (isAdmin)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="@Url.Action("Read", "Animal")"><i class="fi fi-rr-paw"></i> Animals</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="@Url.Action("Read", "User")"><i class="fi fi-rr-user"></i> Users</a>
+                        </li>
+                    }
                     <li class="nav-item text-center p-1">
                         <span class="d-block text-sm">@User.Identity?.Name</span>
                         <a class="d-block text-xs text-muted bg-white rounded w-50 text-black"

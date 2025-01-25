@@ -1,11 +1,8 @@
 ﻿@model List<BeestjeOpJeFeestje_PROG6.ViewModel.BookingVM>
-
 @{
     var roleClaim = User.Claims.FirstOrDefault(c => c.Type == "Role");
     bool isAdmin = roleClaim != null && int.TryParse(roleClaim.Value, out int roleValue) && roleValue == 1;
 }
-
-
 <div class="container">
     @if (TempData["Message"] != null)
     {

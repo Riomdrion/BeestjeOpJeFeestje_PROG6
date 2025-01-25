@@ -58,7 +58,7 @@ public class BookingController(ApplicationDbContext db) : Controller
     }
 
     [HttpPost]
-    public IActionResult SaveAnimals(List<string> selectedAnimals)
+    public async Task<IActionResult> SaveAnimals(List<string> selectedAnimals)
     {
         DateTime eventDate = Convert.ToDateTime(HttpContext.Session.GetString("EventDate"));
         var cardValue = User.Claims.FirstOrDefault(c => c.Type == "Card")?.Value;
@@ -66,6 +66,11 @@ public class BookingController(ApplicationDbContext db) : Controller
         
         // Haal de geselecteerde dieren op uit de database of een service
         var selectedAnimalDetails = db.Animals.Where(a => selectedAnimals.Select(int.Parse).Contains(a.Id)).ToList();
+        var availableAnimals = await db.Animals
+            .Where(a => a.Bookings.All(b => b.EventDate.Date != eventDate.Date) &&
+                        (CalculateNumberOfAnimals.GetBookingVipStatus(cardValue) || a.Type != "vip"))
+            .OrderBy(a => a.Type)
+            .ToListAsync();
 
         // Valideer de boeking
         var validationErrors = BookingValidationService.ValidateBooking(selectedAnimalDetails, canBook, eventDate);
