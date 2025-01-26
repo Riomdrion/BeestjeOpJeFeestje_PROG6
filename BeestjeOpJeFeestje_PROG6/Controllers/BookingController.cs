@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using BeestjeOpJeFeestje_PROG6.data.DBcontext;
+﻿using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using BeestjeOpJeFeestje_PROG6.data.Models;
 using BeestjeOpJeFeestje_PROG6.Services;
 using BeestjeOpJeFeestje_PROG6.ViewModel;
@@ -63,8 +62,7 @@ public class BookingController(ApplicationDbContext db) : Controller
         DateTime eventDate = Convert.ToDateTime(HttpContext.Session.GetString("EventDate"));
         var cardValue = User.Claims.FirstOrDefault(c => c.Type == "Card")?.Value;
         var canBook = CalculateNumberOfAnimals.GetMaxAnimals(cardValue);
-        
-        // Haal de geselecteerde dieren op uit de database of een service
+
         var selectedAnimalDetails = db.Animals.Where(a => selectedAnimals.Select(int.Parse).Contains(a.Id)).ToList();
         var availableAnimals = await db.Animals
             .Where(a => a.Bookings.All(b => b.EventDate.Date != eventDate.Date) &&
@@ -72,10 +70,8 @@ public class BookingController(ApplicationDbContext db) : Controller
             .OrderBy(a => a.Type)
             .ToListAsync();
 
-        // Valideer de boeking
         var validationErrors = BookingValidationService.ValidateBooking(selectedAnimalDetails, canBook, eventDate);
 
-        // Als er validatiefouten zijn, toon deze en ga terug naar de vorige stap
         if (validationErrors.Any())
         {
             foreach (var error in validationErrors)
@@ -84,7 +80,8 @@ public class BookingController(ApplicationDbContext db) : Controller
                 TempData["AlertClass"] = "error";
                 ModelState.AddModelError(string.Empty, error);
             }
-            StepTwoVM viewmodel = new StepTwoVM
+
+            var viewmodel = new StepTwoVM
             {
                 AvailableAnimals = db.Animals.ToList(),
                 CanBook = canBook
@@ -92,9 +89,17 @@ public class BookingController(ApplicationDbContext db) : Controller
             return View("StepTwo", viewmodel);
         }
 
-        // Als alle validaties slagen, sla de selectie op in de sessie
-        HttpContext.Session.SetString("SelectedAnimals", string.Join(",", selectedAnimals));
+        var existingAnimals = db.Animals.Select(a => a.Id.ToString()).ToList();
+        var validSelectedAnimals = selectedAnimals.Where(sa => existingAnimals.Contains(sa)).ToList();
 
+        if (!validSelectedAnimals.Any())
+        {
+            TempData["Message"] = "Geen geldige dieren geselecteerd.";
+            TempData["AlertClass"] = "error";
+            return RedirectToAction("StepOne");
+        }
+
+        HttpContext.Session.SetString("SelectedAnimals", string.Join(",", validSelectedAnimals));
         return RedirectToAction("StepThree");
     }
 
@@ -219,25 +224,29 @@ public class BookingController(ApplicationDbContext db) : Controller
     [HttpPost]
     public IActionResult Delete(int id)
     {
+        Console.WriteLine($"Attempting to delete Booking with Id: {id}");
+
         var booking = db.Bookings
             .Include(b => b.Animals)
             .FirstOrDefault(b => b.Id == id);
 
         if (booking != null)
         {
+            Console.WriteLine($"Booking found with Id: {id}. Deleting...");
             db.Bookings.Remove(booking);
             db.SaveChanges();
 
+            Console.WriteLine($"Booking with Id: {id} successfully deleted.");
             TempData["Message"] = "Booking successfully deleted.";
             TempData["AlertClass"] = "success";
         }
         else
         {
+            Console.WriteLine($"Booking with Id: {id} not found.");
             TempData["Message"] = "Booking not found.";
             TempData["AlertClass"] = "error";
         }
 
         return RedirectToAction("Read");
     }
-
 }
