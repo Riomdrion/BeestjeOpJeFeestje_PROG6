@@ -50,7 +50,12 @@ public class AnimalController(ApplicationDbContext db) : Controller
    [HttpPost]
    public IActionResult Upsert(AnimalViewModel animalViewModel)
    {
-      if (ModelState.IsValid)
+        if (string.IsNullOrWhiteSpace(animalViewModel.Name))
+        {
+            ModelState.AddModelError("Name", "The Name field is required.");
+        }
+
+        if (ModelState.IsValid)
       {
          var animal = db.Animals.FirstOrDefault(a => a.Id == animalViewModel.Id);
          if (animal == null)
@@ -68,7 +73,7 @@ public class AnimalController(ApplicationDbContext db) : Controller
          return RedirectToAction("Read");
       }
 
-      return View(animalViewModel);
+      return View("Upsert",animalViewModel);
    }
    
    [HttpPost]

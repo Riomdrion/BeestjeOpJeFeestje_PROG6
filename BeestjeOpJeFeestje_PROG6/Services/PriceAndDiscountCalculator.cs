@@ -8,7 +8,7 @@ namespace BeestjeOpJeFeestje_PROG6.Services
 
         public static double CalculatePrice(double price, int discount)
         { 
-            double finalPrice = price * (1 - discount / 100);
+            double finalPrice = price * (1 - discount / 100.0);
             return finalPrice;
         }
 
