@@ -42,6 +42,6 @@ public class Tests
 
         // Act & Assert
         var ex = Assert.Throws<FormatException>(() => PasswordService.DecryptPassword(invalidEncryptedPassword));
-        Assert.That(ex.Message, Does.Contain("The input is not in a valid Base64 format"));
+        Assert.That(ex.Message, Does.Contain("The input is not a valid Base-64 string"));
     }
 }

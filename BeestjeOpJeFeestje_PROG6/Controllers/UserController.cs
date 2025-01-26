@@ -102,8 +102,15 @@ public class UserController : Controller
 
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync();
-        TempData["Message"] = "Logout succesvol!";
+        if (HttpContext != null)
+        {
+            await HttpContext.SignOutAsync();
+            TempData["Message"] = "Logout succesvol!";
+        }
+        else
+        {
+            TempData["Message"] = "Fout: HttpContext is null!";
+        }
         return RedirectToAction("Login");
     }
     
