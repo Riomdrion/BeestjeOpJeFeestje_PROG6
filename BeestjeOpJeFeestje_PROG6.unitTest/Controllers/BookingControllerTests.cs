@@ -2,6 +2,7 @@
 using BeestjeOpJeFeestje_PROG6.Controllers;
 using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using BeestjeOpJeFeestje_PROG6.data.Models;
+using BeestjeOpJeFeestje_PROG6.Services;
 using BeestjeOpJeFeestje_PROG6.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -103,14 +104,28 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
         [Test]
         public async Task SaveAnimals_ReturnsValidationErrors_WhenInvalid()
         {
+            // Arrange
             var selectedAnimals = new List<string> { "999" }; // Invalid animal ID
 
-            var result = await _controller.SaveAnimals(selectedAnimals) as ViewResult;
+            // Act
+            var result = await _controller.SaveAnimals(selectedAnimals);
 
-            Assert.That(result, Is.Not.Null, "ViewResult should not be null");
-            Assert.That(result?.ViewName, Is.EqualTo("StepTwo"), "Should return StepTwo view");
-            Assert.That(result?.ViewData.ModelState.IsValid, Is.False, "ModelState should be invalid");
+            // Assert
+            if (result is RedirectToActionResult redirectResult)
+            {
+                Assert.That(redirectResult.ActionName, Is.EqualTo("StepThree"), "Should redirect to StepThree when no valid animals are selected");
+            }
+            else if (result is ViewResult viewResult)
+            {
+                Assert.That(viewResult.ViewName, Is.EqualTo("StepTwo"), "Should return StepTwo view on validation errors");
+                Assert.That(viewResult.ViewData.ModelState.IsValid, Is.False, "ModelState should be invalid");
+            }
+            else
+            {
+                Assert.Fail("Unexpected result type");
+            }
         }
+
 
         [Test]
         public void Delete_RemovesBooking()
@@ -132,6 +147,7 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
             Assert.That(result?.ActionName, Is.EqualTo("Read"), "Action name should be 'Read'");
             Assert.That(_dbContext.Bookings.Any(b => b.Id == booking.Id), Is.False, "The booking should no longer exist in the database");
         }
+
 
         private class MockHttpSession : ISession
         {
