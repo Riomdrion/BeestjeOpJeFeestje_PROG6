@@ -12,11 +12,10 @@ public class BookingController(ApplicationDbContext db) : Controller
     [HttpGet]
     public IActionResult StepOne()
     {
-        if (User.Identity is { IsAuthenticated: false })
+        if (User.Identity is { IsAuthenticated: false } || !User.Claims.Any())
         {
             return RedirectToAction("Login", "User");
         }
-
         return View();
     }
 

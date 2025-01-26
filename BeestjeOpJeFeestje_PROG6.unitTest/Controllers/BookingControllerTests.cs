@@ -125,8 +125,7 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
                 Assert.Fail("Unexpected result type");
             }
         }
-
-
+        
         [Test]
         public void Delete_RemovesBooking()
         {
@@ -147,7 +146,103 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
             Assert.That(result?.ActionName, Is.EqualTo("Read"), "Action name should be 'Read'");
             Assert.That(_dbContext.Bookings.Any(b => b.Id == booking.Id), Is.False, "The booking should no longer exist in the database");
         }
+        
+        [Test]
+        public void StepOne_RedirectsToLogin_WhenUserNotAuthenticated()
+        {
+            // Arrange
+            _controller.ControllerContext.HttpContext.User = new ClaimsPrincipal(); // Lege gebruiker
 
+            // Act
+            var result = _controller.StepOne() as RedirectToActionResult;
+
+            // Assert
+            Assert.That(result, Is.Not.Null, "RedirectToActionResult should not be null");
+            Assert.That(result?.ActionName, Is.EqualTo("Login"), "Should redirect to Login");
+            Assert.That(result?.ControllerName, Is.EqualTo("User"), "Should redirect to User controller");
+        }
+        
+        [Test]
+        public async Task StepTwo_RedirectsToStepOne_WhenNoEventDateInSession()
+        {
+            // Arrange
+            _controller.HttpContext.Session.Remove("EventDate");
+
+            // Act
+            var result = await _controller.StepTwo() as RedirectToActionResult;
+
+            // Assert
+            Assert.That(result, Is.Not.Null, "RedirectToActionResult should not be null");
+            Assert.That(result?.ActionName, Is.EqualTo("StepOne"), "Should redirect to StepOne");
+        }
+        
+        [Test]
+        public void Delete_ShowsErrorMessage_WhenBookingNotFound()
+        {
+            // Arrange
+            int nonExistentBookingId = 999;
+
+            // Act
+            var result = _controller.Delete(nonExistentBookingId) as RedirectToActionResult;
+
+            // Assert
+            Assert.That(result, Is.Not.Null, "RedirectToActionResult should not be null");
+            Assert.That(result?.ActionName, Is.EqualTo("Read"), "Should redirect to Read");
+            Assert.That(_controller.TempData["Message"], Is.EqualTo("Booking not found."));
+            Assert.That(_controller.TempData["AlertClass"], Is.EqualTo("error"));
+        }
+        
+        [Test]
+        public async Task StepThree_RedirectsToStepOne_WhenNoSelectedAnimals()
+        {
+            // Arrange
+            _controller.HttpContext.Session.Remove("SelectedAnimals");
+
+            // Act
+            var result = await _controller.StepThree() as RedirectToActionResult;
+
+            // Assert
+            Assert.That(result, Is.Not.Null, "RedirectToActionResult should not be null");
+            Assert.That(result?.ActionName, Is.EqualTo("StepOne"), "Should redirect to StepOne");
+        }
+        
+        [Test]
+        public async Task StepThree_ReturnsCorrectViewModel_WhenValidSelection()
+        {
+            // Arrange
+            _controller.HttpContext.Session.SetString("SelectedAnimals", "1,2");
+
+            // Act
+            var result = await _controller.StepThree() as ViewResult;
+
+            // Assert
+            Assert.That(result, Is.Not.Null, "ViewResult should not be null");
+            var viewModel = result?.Model as BookingVM;
+            Assert.That(viewModel, Is.Not.Null, "ViewModel should not be null");
+            Assert.That(viewModel?.Animals.Count, Is.EqualTo(2), "Should include 2 animals in the booking");
+        }
+
+        [Test]
+        public async Task Finalize_CreatesBooking_AndRedirectsToRead()
+        {
+            // Arrange
+            _controller.HttpContext.Session.SetString("SelectedAnimals", "1,2");
+
+            var bookingVM = new BookingVM
+            {
+                EventDate = DateTime.Today,
+                Price = 100,
+                Discount = 10
+            };
+
+            // Act
+            var result = await _controller.Finalize(bookingVM) as RedirectToActionResult;
+
+            // Assert
+            Assert.That(result, Is.Not.Null, "RedirectToActionResult should not be null");
+            Assert.That(result?.ActionName, Is.EqualTo("Read"), "Should redirect to Read");
+            Assert.That(_dbContext.Bookings.Count(), Is.EqualTo(1), "Booking should be created");
+        }
 
         private class MockHttpSession : ISession
         {
