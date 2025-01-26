@@ -34,7 +34,7 @@
             <tr onclick="window.location.href='@Url.Action("Upsert", "Animal", new { id = animalVM.Id })'" style="cursor:pointer;">
                 <td>@animalVM.Name</td>
                 <td>@animalVM.Type</td>
-                <td>@animalVM.Price.ToString("C")</td>
+                <td>€ @animalVM.Price.ToString()</td>
                 <td>
                     <img src="@animalVM.ImageUrl" alt="@animalVM.Name" style="max-height: 50px;" />
                 </td>
