@@ -2,7 +2,6 @@
 using BeestjeOpJeFeestje_PROG6.Controllers;
 using BeestjeOpJeFeestje_PROG6.data.DBcontext;
 using BeestjeOpJeFeestje_PROG6.data.Models;
-using BeestjeOpJeFeestje_PROG6.Services;
 using BeestjeOpJeFeestje_PROG6.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,30 +27,19 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
             _dbContext = new ApplicationDbContext(options);
 
             _dbContext.Animals.AddRange(
-                new Animal { Name = "Lion", Type = "Predator", Price = 100, ImageUrl = "lion.jpg" },
-                new Animal { Name = "Cow", Type = "Farm", Price = 50, ImageUrl = "cow.jpg" }
+                new Animal { Id = 1, Name = "Lion", Type = "Predator", Price = 100, ImageUrl = "lion.jpg" },
+                new Animal { Id = 2, Name = "Cow", Type = "Farm", Price = 50, ImageUrl = "cow.jpg" }
             );
-
-            var password = "TestPassword123";
-            var encryptedPassword = PasswordService.EncryptPassword(password);
 
             var user = new User
             {
+                Id = 1,
                 Email = "test@test.com",
                 Role = 0,
-                PasswordHash = encryptedPassword,
+                PasswordHash = "hashedPassword",
                 Card = "Gold"
             };
             _dbContext.Users.Add(user);
-
-            _dbContext.Bookings.Add(new Booking
-            {
-                EventDate = DateTime.Today,
-                UserId = user.Id,
-                Animals = _dbContext.Animals.ToList(),
-                Price = 150,
-                Discount = 10
-            });
 
             _dbContext.SaveChanges();
 
@@ -78,17 +66,11 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
                 HttpContext = httpContext
             };
 
-            // Configure TempData
-            _controller.TempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>())
-            {
-                ["Message"] = "",
-                ["AlertClass"] = ""
-            };
+            _controller.TempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
             _controller.HttpContext.Session = new MockHttpSession();
-            _controller.HttpContext.Session.SetString("EventDate", DateTime.Today.ToString("yyyy-MM-dd"));
+            _controller.HttpContext.Session.SetString("EventDate", System.DateTime.Today.ToString("yyyy-MM-dd"));
         }
-
 
         [TearDown]
         public void TearDown()
@@ -101,32 +83,18 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
         [Test]
         public void StepOne_ReturnsView()
         {
-            // Act
             var result = _controller.StepOne() as ViewResult;
 
-            // Assert
             Assert.That(result, Is.Not.Null, "ViewResult should not be null");
         }
 
         [Test]
         public async Task StepTwo_ReturnsAvailableAnimals()
         {
-            // Arrange
-            var eventDate = DateTime.Today.ToString("yyyy-MM-dd");
-            var httpContext = new DefaultHttpContext();
-            httpContext.Session = new MockHttpSession();
-            httpContext.Session.SetString("EventDate", eventDate);
-
-            _controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = httpContext
-            };
-
-            // Act
             var result = await _controller.StepTwo() as ViewResult;
 
-            // Assert
             Assert.That(result, Is.Not.Null, "ViewResult should not be null");
+
             var viewModel = result?.Model as StepTwoVM;
             Assert.That(viewModel, Is.Not.Null, "ViewModel should not be null");
             Assert.That(viewModel?.AvailableAnimals.Count, Is.EqualTo(2), "There should be 2 available animals");
@@ -135,15 +103,11 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
         [Test]
         public async Task SaveAnimals_ReturnsValidationErrors_WhenInvalid()
         {
-            // Arrange
-            var selectedAnimals = new List<string> { "999" }; // Niet-bestaande dieren
-            _controller.HttpContext.Session.SetString("EventDate", DateTime.Today.ToString("yyyy-MM-dd"));
+            var selectedAnimals = new List<string> { "999" }; // Invalid animal ID
 
-            // Act
             var result = await _controller.SaveAnimals(selectedAnimals) as ViewResult;
 
-            // Assert
-            //Assert.That(result, Is.Not.Null, "ViewResult should not be null");
+            Assert.That(result, Is.Not.Null, "ViewResult should not be null");
             Assert.That(result?.ViewName, Is.EqualTo("StepTwo"), "Should return StepTwo view");
             Assert.That(result?.ViewData.ModelState.IsValid, Is.False, "ModelState should be invalid");
         }
@@ -151,48 +115,44 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
         [Test]
         public void Delete_RemovesBooking()
         {
-            // Arrange
-            var booking = _dbContext.Bookings.FirstOrDefault();
-            Assert.That(booking, Is.Not.Null, "Booking should exist");
+            var booking = new Booking
+            {
+                Id = 1,
+                UserId = 1,
+                AnimalId = 1,
+                EventDate = DateTime.Today
+            };
 
-            Console.WriteLine($"Booking found with Id: {booking.Id}");
+            _dbContext.Bookings.Add(booking);
+            _dbContext.SaveChanges();
 
-            // Act
             var result = _controller.Delete(booking.Id) as RedirectToActionResult;
 
-            // Assert
-            Console.WriteLine("Delete method executed");
             Assert.That(result, Is.Not.Null, "RedirectToActionResult should not be null");
             Assert.That(result?.ActionName, Is.EqualTo("Read"), "Action name should be 'Read'");
-            Assert.That(_dbContext.Bookings.Any(b => b.Id == booking.Id), Is.False,
-                "The booking should no longer be in the database");
-
-            Console.WriteLine("Test completed successfully");
+            Assert.That(_dbContext.Bookings.Any(b => b.Id == booking.Id), Is.False, "The booking should no longer exist in the database");
         }
 
+        private class MockHttpSession : ISession
+        {
+            private readonly Dictionary<string, byte[]> _sessionStorage = new();
+
+            public string Id { get; } = Guid.NewGuid().ToString();
+            public bool IsAvailable { get; } = true;
+            public IEnumerable<string> Keys => _sessionStorage.Keys;
+
+            public void Clear() => _sessionStorage.Clear();
+            public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+            public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+            public void Remove(string key) => _sessionStorage.Remove(key);
+            public void Set(string key, byte[] value) => _sessionStorage[key] = value;
+            public bool TryGetValue(string key, out byte[] value) => _sessionStorage.TryGetValue(key, out value);
+
+            public void SetString(string key, string value) => _sessionStorage[key] = System.Text.Encoding.UTF8.GetBytes(value);
+
+            public string GetString(string key) => _sessionStorage.ContainsKey(key)
+                ? System.Text.Encoding.UTF8.GetString(_sessionStorage[key])
+                : null;
+        }
     }
-
-    // Mock Http Session
-    public class MockHttpSession : ISession
-    {
-        private readonly Dictionary<string, byte[]> _sessionStorage = new Dictionary<string, byte[]>();
-
-        public string Id { get; } = Guid.NewGuid().ToString();
-        public bool IsAvailable { get; } = true;
-        public IEnumerable<string> Keys => _sessionStorage.Keys;
-        public void Clear() => _sessionStorage.Clear();
-        public Task CommitAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public Task LoadAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
-        public void Remove(string key) => _sessionStorage.Remove(key);
-        public void Set(string key, byte[] value) => _sessionStorage[key] = value;
-        public bool TryGetValue(string key, out byte[] value) => _sessionStorage.TryGetValue(key, out value);
-
-        public void SetString(string key, string value) =>
-            _sessionStorage[key] = System.Text.Encoding.UTF8.GetBytes(value);
-
-        public string GetString(string key) => _sessionStorage.ContainsKey(key)
-            ? System.Text.Encoding.UTF8.GetString(_sessionStorage[key])
-            : null;
-    }
-
 }
