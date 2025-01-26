@@ -5,7 +5,7 @@ using BeestjeOpJeFeestje_PROG6.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace BeestjeOpJeFeestje_PROG6.unitTest
+namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
 {
     [TestFixture]
     public class AnimalControllerTests
@@ -24,8 +24,8 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest
 
             // Voeg testdata toe
             _dbContext.Animals.AddRange(
-                new Animal {Name = "Lion", Type = "Predator", Price = 100, ImageUrl = "lion.jpg" },
-                new Animal {Name = "Cow", Type = "Farm", Price = 50, ImageUrl = "cow.jpg" }
+                new Animal { Name = "Lion", Type = "Predator", Price = 100, ImageUrl = "lion.jpg" },
+                new Animal { Name = "Cow", Type = "Farm", Price = 50, ImageUrl = "cow.jpg" }
             );
             _dbContext.SaveChanges();
 

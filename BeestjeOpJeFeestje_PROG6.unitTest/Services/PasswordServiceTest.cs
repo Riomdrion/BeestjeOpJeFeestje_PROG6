@@ -1,8 +1,8 @@
 ﻿using BeestjeOpJeFeestje_PROG6.Services;
 
-namespace BeestjeOpJeFeestje_PROG6.unitTest;
+namespace BeestjeOpJeFeestje_PROG6.unitTest.Services;
 
-public class Tests
+public class PassWordServiceTest
 {
     // Test to ensure that encrypting and decrypting returns the original password
     [Test]
@@ -42,6 +42,6 @@ public class Tests
 
         // Act & Assert
         var ex = Assert.Throws<FormatException>(() => PasswordService.DecryptPassword(invalidEncryptedPassword));
-        Assert.That(ex.Message, Does.Contain("The input is not in a valid Base64 format"));
+        Assert.That(ex.Message, Does.Contain("The input is not a valid Base-64 string"));
     }
 }
