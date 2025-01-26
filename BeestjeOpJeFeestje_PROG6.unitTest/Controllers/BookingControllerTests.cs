@@ -10,14 +10,14 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
-namespace BeestjeOpJeFeestje_PROG6.unitTest
+namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
 {
     [TestFixture]
     public class BookingControllerTests
     {
         private ApplicationDbContext _dbContext;
         private BookingController _controller;
-        
+
         [SetUp]
         public void Setup()
         {
@@ -46,7 +46,7 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest
 
             _dbContext.Bookings.Add(new Booking
             {
-                EventDate = System.DateTime.Today,
+                EventDate = DateTime.Today,
                 UserId = user.Id,
                 Animals = _dbContext.Animals.ToList(),
                 Price = 150,
@@ -86,7 +86,7 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest
             };
 
             _controller.HttpContext.Session = new MockHttpSession();
-            _controller.HttpContext.Session.SetString("EventDate", System.DateTime.Today.ToString("yyyy-MM-dd"));
+            _controller.HttpContext.Session.SetString("EventDate", DateTime.Today.ToString("yyyy-MM-dd"));
         }
 
 
@@ -112,7 +112,7 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest
         public async Task StepTwo_ReturnsAvailableAnimals()
         {
             // Arrange
-            var eventDate = System.DateTime.Today.ToString("yyyy-MM-dd");
+            var eventDate = DateTime.Today.ToString("yyyy-MM-dd");
             var httpContext = new DefaultHttpContext();
             httpContext.Session = new MockHttpSession();
             httpContext.Session.SetString("EventDate", eventDate);
@@ -131,13 +131,13 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest
             Assert.That(viewModel, Is.Not.Null, "ViewModel should not be null");
             Assert.That(viewModel?.AvailableAnimals.Count, Is.EqualTo(2), "There should be 2 available animals");
         }
-        
+
         [Test]
         public async Task SaveAnimals_ReturnsValidationErrors_WhenInvalid()
         {
             // Arrange
             var selectedAnimals = new List<string> { "999" }; // Niet-bestaande dieren
-            _controller.HttpContext.Session.SetString("EventDate", System.DateTime.Today.ToString("yyyy-MM-dd"));
+            _controller.HttpContext.Session.SetString("EventDate", DateTime.Today.ToString("yyyy-MM-dd"));
 
             // Act
             var result = await _controller.SaveAnimals(selectedAnimals) as ViewResult;
@@ -147,7 +147,7 @@ namespace BeestjeOpJeFeestje_PROG6.unitTest
             Assert.That(result?.ViewName, Is.EqualTo("StepTwo"), "Should return StepTwo view");
             Assert.That(result?.ViewData.ModelState.IsValid, Is.False, "ModelState should be invalid");
         }
-        
+
         [Test]
         public void Delete_RemovesBooking()
         {

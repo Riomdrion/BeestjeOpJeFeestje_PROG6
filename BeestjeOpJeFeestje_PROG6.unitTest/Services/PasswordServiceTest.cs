@@ -1,8 +1,8 @@
 ﻿using BeestjeOpJeFeestje_PROG6.Services;
 
-namespace BeestjeOpJeFeestje_PROG6.unitTest;
+namespace BeestjeOpJeFeestje_PROG6.unitTest.Services;
 
-public class Tests
+public class PassWordServiceTest
 {
     // Test to ensure that encrypting and decrypting returns the original password
     [Test]

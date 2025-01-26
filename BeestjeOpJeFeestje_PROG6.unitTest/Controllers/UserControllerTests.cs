@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 
-namespace BeestjeOpJeFeestje_PROG6.unitTest
+namespace BeestjeOpJeFeestje_PROG6.unitTest.Controllers
 {
     [TestFixture]
     public class UserControllerTests
