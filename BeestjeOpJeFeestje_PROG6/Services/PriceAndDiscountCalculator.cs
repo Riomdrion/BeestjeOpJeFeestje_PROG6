@@ -40,12 +40,14 @@ namespace BeestjeOpJeFeestje_PROG6.Services
             foreach (var animal in animals)
             {
                 var name = animal.Name.ToUpper();
-                for (char letter = 'A'; letter <= 'Z'; letter++)
+                char previousLetter = '\0';
+                foreach (char letter in name)
                 {
-                    if (name.Contains(letter))
+                    if (letter >= 'A' && letter <= 'Z' && letter == previousLetter + 1)
                     {
                         discount += 2;
                     }
+                    previousLetter = letter;
                 }
             }
 

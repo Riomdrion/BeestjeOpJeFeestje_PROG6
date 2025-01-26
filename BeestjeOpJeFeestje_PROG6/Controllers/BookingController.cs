@@ -71,8 +71,11 @@ public class BookingController(ApplicationDbContext db) : Controller
             .ToListAsync();
 
         var validationErrors = BookingValidationService.ValidateBooking(selectedAnimalDetails, canBook, eventDate);
+        
+        var existingAnimals = db.Animals.Select(a => a.Id.ToString()).ToList();
+        var validSelectedAnimals = selectedAnimals.Where(sa => existingAnimals.Contains(sa)).ToList();
 
-        if (validationErrors.Any())
+        if (validationErrors.Any() && !validSelectedAnimals.Any())
         {
             foreach (var error in validationErrors)
             {
@@ -87,16 +90,6 @@ public class BookingController(ApplicationDbContext db) : Controller
                 CanBook = canBook
             };
             return View("StepTwo", viewmodel);
-        }
-
-        var existingAnimals = db.Animals.Select(a => a.Id.ToString()).ToList();
-        var validSelectedAnimals = selectedAnimals.Where(sa => existingAnimals.Contains(sa)).ToList();
-
-        if (!validSelectedAnimals.Any())
-        {
-            TempData["Message"] = "Geen geldige dieren geselecteerd.";
-            TempData["AlertClass"] = "error";
-            return RedirectToAction("StepOne");
         }
 
         HttpContext.Session.SetString("SelectedAnimals", string.Join(",", validSelectedAnimals));
